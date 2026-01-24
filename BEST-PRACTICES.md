@@ -461,7 +461,7 @@ allowed-tools: Read, Grep, Glob
 ### **推荐的文件组织**
 
 ```
-~/AI-Skills/
+~/Workspace/my-ai-skills/
 ├── skill-name/
 │   ├── SKILL.md              # 主 Skill（通用 + 可选高级功能）
 │   ├── COMPATIBILITY.md      # 兼容性说明

@@ -1,290 +1,378 @@
 # 🎉 AI Skills 仓库配置完成总结
 
-本文档记录了 AI Skills 跨工具同步方案的完整配置过程和使用指南。
+本文档记录了 AI Skills 中央仓库的配置方案和使用指南。
+
+**架构版本**: v2.0 - add-skill 集成版
 
 ---
 
-## ✅ 已完成的工作
+## ✅ 架构设计
 
-### 1. 创建了统一的 Skills 仓库
+### 核心理念
 
-**位置**：`~/Workspace/my-ai-skills`
-
-**内容**：
-- ✅ commit-conventional Skill（约定式提交规范）
-- ✅ frontend-design Skill（前端设计）
-- ✅ BEST-PRACTICES.md（跨工具兼容最佳实践）
-- ✅ 自动化脚本（install.sh, verify.sh）
-- ✅ Git 仓库已初始化并完成首次提交
-
-### 2. 配置了跨工具软链接
-
-所有 AI 编码工具现在共享同一个 Skills 仓库：
+本方案结合了**中央仓库管理**和 **add-skill 工具**的优势：
 
 ```
-~/.claude/skills -> ~/Workspace/my-ai-skills
-~/.codex/skills -> ~/Workspace/my-ai-skills
-~/.gemini/skills -> ~/Workspace/my-ai-skills
-~/.antigravity/skills -> ~/Workspace/my-ai-skills
+中央仓库: ~/Workspace/my-ai-skills/ (Git 管理)
+         ↑
+         │ 软链接
+         │
+~/.agents/skills/ ← add-skill 默认安装位置
+         ↓
+自动为各个 agent 创建软链接:
+  • ~/.claude/skills/skill-name → ~/.agents/skills/skill-name
+  • ~/.cursor/skills/skill-name → ~/.agents/skills/skill-name
+  • ~/.codex/skills/skill-name → ~/.agents/skills/skill-name
+  • ... 及其他 25+ 种 agents
 ```
 
-### 3. 实现了跨工具兼容性
+### 架构优势
 
-**核心原理**：
-- Agent Skills 标准：所有工具都支持 SKILL.md 格式
-- 优雅降级：未知的 frontmatter 字段会被自动忽略
-- 分层设计：核心功能通用，高级功能可选
-
-**兼容性处理**：
-- ✅ Claude Code：支持完整功能（包括 Hooks、allowed-tools 等）
-- ✅ Codex/Gemini：支持基础功能，自动忽略高级特性
-- ✅ 无报错，优雅降级
-
-### 4. 优化了 commit-conventional Skill
-
-**改进点**：
-- ✅ 添加了兼容性标记
-- ✅ 优化了 description 防止误触发
-- ✅ 高级功能（Hooks）已注释，需要时可启用
-- ✅ 创建了 COMPATIBILITY.md 文档
-
-### 5. 生成了 SSH 密钥
-
-```
-SSH 公钥：
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF+dK2tupnlyQuXFcHr1JixDd06JFMYwDmFGV7nWFBiO enjoy.loneliness@iCloud.com
-```
+✅ **统一管理** - 所有 skills 存储在一个位置
+✅ **Git 同步** - 版本控制，跨设备同步
+✅ **社区集成** - 使用 add-skill 安装社区 skills
+✅ **自动配置** - add-skill 自动为所有 agents 创建软链接
+✅ **单一副本** - 虽然软链接到多个 agents，但只有一份实际文件
 
 ---
 
-## 🚀 下一步：推送到 GitHub
+## 🚀 快速开始
 
-### 方式 A：使用推送脚本（推荐）
+### 在新设备上设置
 
-1. **创建 GitHub 仓库**
+```bash
+# 1. 克隆仓库
+git clone git@github.com:你的用户名/my-ai-skills.git ~/Workspace/my-ai-skills
 
-   访问：https://github.com/new
+# 2. 运行设置脚本
+bash ~/Workspace/my-ai-skills/setup-universal-skills.sh
 
-   配置：
-   - Repository name: `my-ai-skills`
-   - Description: `统一管理所有 AI 编码工具的 Skills`
-   - Private: ✅ 勾选（推荐）
-   - ❌ 不要勾选任何初始化选项
-   - 点击 "Create repository"
+# 3. 验证配置
+bash ~/Workspace/my-ai-skills/shared/scripts/verify.sh
+```
 
-2. **运行推送脚本**
+### 工作流程
 
-   ```bash
-   cd ~/Workspace/my-ai-skills
-   ./push-to-github.sh
-   ```
+**安装社区 skills：**
+```bash
+npx add-skill vercel-labs/agent-skills -g
+# 自动安装到 ~/Workspace/my-ai-skills/
+# 自动为所有 agents 创建软链接
+```
 
-   脚本会提示你输入 GitHub 用户名，然后自动完成推送。
-
-3. **认证说明**
-
-   首次推送可能需要认证：
-   - **SSH 方式**：需要先添加 SSH 公钥到 GitHub
-     - 访问：https://github.com/settings/ssh/new
-     - 粘贴上面的 SSH 公钥
-
-   - **HTTPS 方式**：需要 Personal Access Token
-     - 访问：https://github.com/settings/tokens/new
-     - Note: "My AI Skills"
-     - Scopes: 勾选 "repo"
-     - 生成后复制 token（只显示一次）
-
-### 方式 B：手动推送
-
-如果你知道你的 GitHub 用户名，可以手动执行：
-
+**创建自己的 skill：**
 ```bash
 cd ~/Workspace/my-ai-skills
-
-# 添加远程仓库（替换 YOUR_USERNAME）
-git remote add origin https://github.com/YOUR_USERNAME/my-ai-skills.git
-
-# 或使用 SSH（如果已配置）
-git remote add origin git@github.com:YOUR_USERNAME/my-ai-skills.git
-
-# 推送
-git branch -M main
-git push -u origin main
-```
-
+mkdir my-skill
+cat > my-skill/SKILL.md << 'EOF'
+---
+name: my-skill
+description: 我的技能描述
 ---
 
-## 📚 使用指南
-
-### 日常使用
-
-**测试 commit-conventional Skill**：
-```bash
-# 修改一个文件
-echo "test" > test.txt
-
-# 然后对 Claude/Codex/Gemini 说：
-"帮我提交代码"
-
-# 或手动调用：
-/commit-conventional
-```
-
-**创建新 Skill**：
-```bash
-cd ~/Workspace/my-ai-skills
-
-# 创建 Skill 目录
-mkdir my-new-skill
-cat > my-new-skill/SKILL.md << 'EOF'
----
-name: my-new-skill
-description: 我的新 Skill 描述
----
-
-# My New Skill
-
-Skill 内容...
+# 技能内容...
 EOF
 
-# 提交到 Git
-git add my-new-skill/
-git commit -m "feat: 添加 my-new-skill"
-git push
-```
-
-**更新现有 Skill**：
-```bash
-cd ~/Workspace/my-ai-skills
-
-# 修改 Skill
-vim commit-conventional/SKILL.md
-
-# 提交更新
-git add commit-conventional/
-git commit -m "fix(commit-conventional): 优化触发条件"
-git push
-```
-
-### 跨设备同步
-
-**在新电脑上设置**：
-```bash
-# 克隆仓库
-git clone git@github.com:YOUR_USERNAME/my-ai-skills.git ~/Workspace/my-ai-skills
-
-# 或使用 HTTPS
-git clone https://github.com/YOUR_USERNAME/my-ai-skills.git ~/Workspace/my-ai-skills
-
-# 运行安装脚本
-cd ~/Workspace/my-ai-skills
-bash shared/scripts/install.sh
-```
-
-**同步更新**：
-```bash
-cd ~/Workspace/my-ai-skills
-git pull
+git add . && git commit -m "feat: 添加 my-skill" && git push
 ```
 
 ---
 
-## 🎯 核心概念总结
+## 📁 目录结构
 
-### Skills 跨工具兼容的实现原理
-
-1. **Agent Skills 标准**
-   - SKILL.md 是开放标准
-   - 所有主流 AI 编码工具都支持
-   - 未知字段自动忽略，向后兼容
-
-2. **优雅降级策略**
-   ```yaml
-   ---
-   name: skill-name
-   description: ...  # 所有工具都支持
-
-   # 高级功能（只有部分工具支持）
-   # allowed-tools: ...  # Claude Code 专属
-   # hooks: ...          # Claude Code 专属
-   ---
-
-   # 核心功能（所有工具都能用）
-   ...
-
-   ## 高级功能（仅特定工具）
-   ...
-   ```
-
-3. **中央仓库 + 软链接**
-   - 一处修改，所有工具同步
-   - 通过 Git 管理版本
-   - 支持跨设备同步
+```
+~/Workspace/my-ai-skills/
+├── .git/                           # Git 仓库
+├── commit-conventional/            # 你的 skills
+├── code-quality-check/
+├── agent-rules-sync/
+├── skill-creator/
+├── vercel-react-best-practices/    # add-skill 安装的
+├── web-design-guidelines/          # add-skill 安装的
+├── shared/
+│   └── scripts/
+│       ├── install.sh             # 新设备安装脚本
+│       └── verify.sh              # 验证脚本
+├── setup-universal-skills.sh      # 主设置脚本
+├── README.md
+├── BEST-PRACTICES.md
+└── SETUP-SUMMARY.md (本文件)
+```
 
 ---
 
-## 📖 重要文档
+## 🔗 软链接架构详解
 
-- **BEST-PRACTICES.md**：跨工具兼容最佳实践
-- **commit-conventional/COMPATIBILITY.md**：兼容性说明
-- **shared/scripts/verify.sh**：验证配置脚本
+### 层级关系
+
+```
+层级 1 (中央仓库):
+~/Workspace/my-ai-skills/
+  ├── skill-a/
+  ├── skill-b/
+  └── skill-c/
+
+层级 2 (add-skill 安装位置):
+~/.agents/skills/ → 软链接到中央仓库
+
+层级 3 (各 agent 的 skills):
+~/.claude/skills/skill-a/ → ~/.agents/skills/skill-a/
+~/.cursor/skills/skill-a/ → ~/.agents/skills/skill-a/
+~/.codex/skills/skill-a/ → ~/.agents/skills/skill-a/
+```
+
+### 实际效果
+
+- 修改 `~/Workspace/my-ai-skills/skill-a/SKILL.md`
+- 所有 agents 立即看到更新 ✨
+- 只有一份实际文件，节省空间
+
+---
+
+## 🛠️ 脚本说明
+
+### setup-universal-skills.sh
+
+**主设置脚本** - 在新设备上运行
+
+功能：
+1. 检查/克隆中央仓库
+2. 创建 `~/.agents/skills → ~/Workspace/my-ai-skills` 软链接
+3. 验证配置
+
+用法：
+```bash
+bash ~/Workspace/my-ai-skills/setup-universal-skills.sh
+```
+
+### shared/scripts/install.sh
+
+**快速安装脚本** - 仅配置软链接
+
+前提：中央仓库已存在
+
+用法：
+```bash
+bash ~/Workspace/my-ai-skills/shared/scripts/install.sh
+```
+
+### shared/scripts/verify.sh
+
+**验证脚本** - 检查配置是否正确
+
+检查项：
+- 中央仓库是否存在
+- Git 是否初始化
+- ~/.agents/skills 软链接是否正确
+- 列出所有可用 skills
+
+用法：
+```bash
+bash ~/Workspace/my-ai-skills/shared/scripts/verify.sh
+```
+
+---
+
+## 🤝 add-skill 集成
+
+### 什么是 add-skill？
+
+[add-skill](https://github.com/vercel-labs/add-skill) 是 Vercel Labs 开发的官方工具，用于从 git 仓库安装 agent skills。
+
+### 支持的 agents
+
+- Claude Code、Codex、Cursor
+- Gemini CLI、Antigravity
+- Windsurf、Cline、Goose、Trae
+- GitHub Copilot、Roo Code
+- 及其他 20+ 种工具
+
+### 常用命令
+
+```bash
+# 安装所有 skills
+npx add-skill vercel-labs/agent-skills -g
+
+# 安装特定 skill
+npx add-skill vercel-labs/agent-skills --skill frontend-design -g
+
+# 列出可用的 skills
+npx add-skill vercel-labs/agent-skills --list
+
+# 自动确认安装（CI/CD）
+npx add-skill vercel-labs/agent-skills -g -y
+```
+
+### 工作原理
+
+```
+1. npx add-skill xxx -g
+   ↓
+2. 从 git 拉取 skills
+   ↓
+3. 安装到 ~/.agents/skills/
+   ↓ (因为我们的软链接)
+4. 实际写入 ~/Workspace/my-ai-skills/
+   ↓
+5. 为所有检测到的 agents 创建软链接
+```
+
+---
+
+## 📚 与旧版本的区别
+
+### v1.0 (旧版本)
+
+```
+~/.claude/skills → ~/Workspace/my-ai-skills
+~/.codex/skills → ~/Workspace/my-ai-skills
+~/.gemini/skills → ~/Workspace/my-ai-skills
+...
+```
+
+**问题**：
+- ❌ 需要手动维护多个软链接
+- ❌ 不兼容 add-skill 工具
+- ❌ 新 agent 需要手动配置
+
+### v2.0 (当前版本)
+
+```
+~/.agents/skills → ~/Workspace/my-ai-skills
+各 agent 自动创建: ~/.xxx/skills/skill-name → ~/.agents/skills/skill-name
+```
+
+**优势**：
+- ✅ 只需维护一个软链接
+- ✅ 完全兼容 add-skill
+- ✅ 新 agent 自动配置
+
+---
+
+## 🎯 最佳实践
+
+### Skill 管理
+
+**自己的 skills** - 直接在中央仓库创建：
+```bash
+cd ~/Workspace/my-ai-skills
+mkdir my-skill && vim my-skill/SKILL.md
+git add . && git commit && git push
+```
+
+**社区 skills** - 使用 add-skill 安装：
+```bash
+npx add-skill vercel-labs/agent-skills --skill xxx -g
+cd ~/Workspace/my-ai-skills
+git add . && git commit -m "feat: 安装 xxx skill" && git push
+```
+
+### Git 工作流
+
+```bash
+# 开发新 skill
+cd ~/Workspace/my-ai-skills
+mkdir new-skill && vim new-skill/SKILL.md
+
+# 测试
+# (在 Claude Code / Cursor 等工具中测试)
+
+# 提交
+git add new-skill
+git commit -m "feat: 添加 new-skill"
+git push
+
+# 同步到其他设备
+# (在其他设备上)
+cd ~/Workspace/my-ai-skills && git pull
+```
 
 ---
 
 ## 🔧 故障排除
 
-### Skills 没有被识别
+### Skills 未被识别
 
 ```bash
-# 验证软链接
-ls -la ~/.claude/skills
+# 1. 检查软链接
+ls -la ~/.agents/skills
+# 应该指向: ~/Workspace/my-ai-skills
 
-# 验证 Skills 文件
-cd ~/Workspace/my-ai-skills
-find . -name "SKILL.md"
+# 2. 运行验证脚本
+bash ~/Workspace/my-ai-skills/shared/scripts/verify.sh
 
-# 运行验证脚本
-bash shared/scripts/verify.sh
+# 3. 重新设置
+bash ~/Workspace/my-ai-skills/setup-universal-skills.sh
 ```
 
-### Git 推送失败
+### add-skill 安装失败
 
-**SSH 认证失败**：
 ```bash
-# 测试 SSH 连接
+# 检查 ~/.agents/skills 是否正确
+readlink ~/.agents/skills
+
+# 应该输出: /Users/xxx/Workspace/my-ai-skills
+
+# 如果不对，重新创建软链接
+rm ~/.agents/skills
+ln -sf ~/Workspace/my-ai-skills ~/.agents/skills
+```
+
+### Git 推送/拉取问题
+
+**SSH 方式**：
+```bash
+# 测试连接
 ssh -T git@github.com
 
-# 如果失败，添加 SSH 公钥到 GitHub
+# 添加 SSH 公钥
 # https://github.com/settings/ssh/new
 ```
 
-**HTTPS 认证失败**：
-- 使用 Personal Access Token 而不是密码
-- 创建 Token：https://github.com/settings/tokens/new
+**HTTPS 方式**：
+```bash
+# 使用 Personal Access Token
+# https://github.com/settings/tokens/new
+```
 
 ---
 
-## 💡 推荐的工作流
+## 📖 相关文档
 
-1. **创建 Skills**：在 `~/Workspace/my-ai-skills` 中开发
-2. **测试验证**：在不同 AI 工具中测试功能
-3. **提交 Git**：保存版本历史
-4. **推送 GitHub**：云端备份和跨设备同步
-5. **持续优化**：根据使用反馈改进 Skills
+- **README.md** - 快速入门和使用指南
+- **BEST-PRACTICES.md** - 创建跨工具兼容的 skills
+- **GITHUB-PUSH-GUIDE.md** - GitHub 推送指南
 
 ---
 
-## 📞 获取帮助
+## 📞 FAQ
 
-如果遇到问题：
+**Q: 为什么要用 add-skill？**
+A: add-skill 是官方标准工具，自动管理多平台软链接，节省手动配置时间。
 
-1. 查看文档：`BEST-PRACTICES.md`
-2. 运行验证：`bash shared/scripts/verify.sh`
-3. 查看 Git 状态：`git status`
-4. 检查软链接：`ls -la ~/.claude/skills`
+**Q: 会不会安装多份 skills？**
+A: 不会！虽然多个 agents 都有软链接，但实际文件只有一份在中央仓库。
+
+**Q: 如何更新社区 skills？**
+A: 重新运行 `npx add-skill vercel-labs/agent-skills --skill xxx -g` 即可。
+
+**Q: 如何删除不需要的 skill？**
+A:
+```bash
+cd ~/Workspace/my-ai-skills
+rm -rf skill-name
+git add . && git commit -m "remove: skill-name" && git push
+```
+
+**Q: 如何在团队中共享 skills？**
+A:
+1. 推送到 GitHub（私有仓库）
+2. 团队成员克隆仓库
+3. 运行 setup-universal-skills.sh
+4. 也可以发布公开仓库，其他人用 `npx add-skill 你的用户名/my-ai-skills` 安装
 
 ---
 
-**创建时间**：2026-01-23
-**版本**：v1.0
-**状态**：✅ 配置完成，待推送到 GitHub
+**版本**: v2.0
+**更新时间**: 2026-01-25
+**状态**: ✅ 完成

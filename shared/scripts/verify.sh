@@ -19,17 +19,24 @@ fi
 echo ""
 echo "🔗 工具链接状态："
 
-for tool in claude codex gemini antigravity; do
-    link="$HOME/.$tool/skills"
+links=(
+    "$HOME/.claude/skills"
+    "$HOME/.codex/skills"
+    "$HOME/.gemini/skills"
+    "$HOME/.antigravity/skills"
+    "$HOME/.gemini/antigravity/skills"
+)
+
+for link in "${links[@]}"; do
     if [ -L "$link" ]; then
         target=$(readlink "$link")
         if [ "$target" = "$SKILLS_DIR" ]; then
-            echo "✅ .$tool/skills -> $SKILLS_DIR"
+            echo "✅ $link -> $SKILLS_DIR"
         else
-            echo "⚠️  .$tool/skills -> $target (指向其他位置)"
+            echo "⚠️  $link -> $target (指向其他位置)"
         fi
     else
-        echo "❌ .$tool/skills (不是软链接或不存在)"
+        echo "❌ $link (不是软链接或不存在)"
     fi
 done
 

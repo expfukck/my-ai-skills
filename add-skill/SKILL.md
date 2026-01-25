@@ -85,19 +85,24 @@ npx add-skill vercel-labs/agent-skills --skill <skill-name> -g
 ### 场景 1：用户说"安装 X skill"
 
 1. 确认 skill 名称（如果用户提供的名称不准确，先列出查找）
-2. 运行安装命令
-3. 更新 skills 列表
+2. 运行安装命令（优先使用非交互式脚本）
+3. 更新 skills 列表（脚本会自动执行）
 4. 提醒用户提交到 Git
 
+**推荐方式（非交互式脚本 - 适用于 Claude Code）：**
+
 ```bash
-# 安装
+bash ~/Workspace/my-ai-skills/add-skill/install-skill.sh <owner>/<repo> --skill <skill-name>
+```
+
+**备用方式（npx add-skill - 需要真实终端）：**
+
+```bash
+# 如果在真实终端中运行
 npx add-skill vercel-labs/agent-skills --skill <skill-name> -g
 
-# 更新列表
+# 手动更新列表
 bash ~/Workspace/my-ai-skills/shared/scripts/update-skills-list.sh
-
-# 提示用户提交
-echo "别忘了提交: git add <skill-name> README.md && git commit -m 'feat: 安装 <skill-name>'"
 ```
 
 ### 场景 2：用户说"从某个仓库安装 skill"
@@ -144,7 +149,7 @@ ls -la ~/.agents/skills/<skill-name>
 ls -la ~/.claude/skills/<skill-name>
 ```
 
-### 2. 更新 Skills 列表
+### 2. 更新 Skills 列表并补充中文描述与触发关键词
 
 **重要：** 每次安装新 skill 后，必须更新中央仓库的 skills 列表：
 
@@ -154,9 +159,47 @@ bash ~/Workspace/my-ai-skills/shared/scripts/update-skills-list.sh
 
 这个脚本会自动：
 - 扫描所有已安装的 skills
-- 从 SKILL.md 提取名称和描述
-- 更新 README.md 中的"当前 Skills"部分
+- 从 SKILL.md 提取名称
+- 更新 INSTALLED_SKILLS.md 中的 skills 列表
 - 区分"自己创建的"和"社区安装的" skills
+
+**补充中文描述与触发关键词（由当前 AI 负责）**：
+
+安装完成后，AI 助手需要在 INSTALLED_SKILLS.md 中为每个条目补充中文描述与触发关键词，不保留英文原文描述：
+
+**条目格式**：
+```
+**用途：** <中文描述>
+**触发关键词：** <关键词1>、<关键词2>、<关键词3>
+```
+
+- **翻译规则**：
+  - 保留专用词汇：Remotion、React、Next.js、Vue、Angular、TailwindCSS、Three.js、Lottie、Zod、Mapbox、WebGL、Canvas、SVG 等框架/库名
+  - 保留工具名：Claude Code、Cursor、GitHub、npm、npx、git 等
+  - 保留技术术语：skill、agent、API、CLI、TTY、JSON、YAML、HTTP、props、hooks 等
+  - 保留文件格式：.srt、.md、.json、.ts、.tsx 等
+  - 翻译描述性文字为中文
+
+- **关键词规则**：
+  - 直接来自英文描述与正文中的触发语义
+  - 使用用户可能会说的话（中文短语即可）
+  - 3-8 个为宜，使用顿号 `、` 分隔
+  - 不要翻译专有名词（如 React、Next.js 等）
+
+- **触发方式**：
+  - 自动触发：安装 skill 后自动补充中文描述与关键词
+  - 手动触发：用户说"翻译技能列表"、"中文化描述"、"补充触发关键词"、"翻译 INSTALLED_SKILLS.md"
+
+- **示例**：
+  ```
+  原文：Best practices for Remotion - Video creation in React
+  中文描述：Remotion 最佳实践 - 使用 React 创建视频
+  触发关键词：Remotion、React 视频、最佳实践
+
+  原文：Automates browser interactions for web testing
+  中文描述：浏览器自动化交互 - 用于网页测试
+  触发关键词：网页测试、表单填写、自动化浏览器
+  ```
 
 ### 3. 提交到 Git
 

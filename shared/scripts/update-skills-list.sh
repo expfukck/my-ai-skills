@@ -1,15 +1,60 @@
 #!/bin/bash
 
 # 自动更新 INSTALLED_SKILLS.md 中的 Skills 列表
-# 从每个 skill 的 SKILL.md frontmatter 中提取名字和描述
+# 从每个 skill 的 SKILL.md frontmatter 中提取名字
 
 REPO_ROOT="$HOME/Workspace/my-ai-skills"
 SKILLS_DOC="$REPO_ROOT/INSTALLED_SKILLS.md"
 
 # 临时文件
 SKILLS_DATA=$(mktemp)
+EXISTING_META=$(mktemp)
 
 echo "🔍 正在扫描已安装的 skills..."
+
+# 读取现有列表中的中文描述与触发关键词（用于保留）
+
+if [[ -f "$SKILLS_DOC" ]]; then
+    SKILLS_DOC="$SKILLS_DOC" python3 - <<'PY' > "$EXISTING_META"
+import os
+import re
+
+path = os.environ.get("SKILLS_DOC")
+if not path or not os.path.exists(path):
+    raise SystemExit(0)
+
+text = open(path, "r", encoding="utf-8").read()
+pattern = re.compile(r'^###\s+(.+?)\n(.*?)(?=^###\s+|^##\s+|\Z)', re.M | re.S)
+
+for name, block in pattern.findall(text):
+    zh = ""
+    kw = ""
+    m = re.search(r'^\*\*中文描述：\*\*\s*(.*)$', block, re.M)
+    if m:
+        zh = m.group(1).strip()
+    if not zh:
+        m = re.search(r'^\*\*用途：\*\*\s*(.*)$', block, re.M)
+        if m:
+            zh = m.group(1).strip()
+    m = re.search(r'^\*\*触发关键词：\*\*\s*(.*)$', block, re.M)
+    if m:
+        kw = m.group(1).strip()
+    if zh or kw:
+        print(f"{name}\t{zh}\t{kw}")
+PY
+
+fi
+
+# 按名称查找已存在的中文描述（兼容 macOS bash 3.2）
+get_zh_desc() {
+    local skill_name="$1"
+    awk -F '\t' -v name="$skill_name" '$1==name {print $2; exit}' "$EXISTING_META"
+}
+
+get_keywords() {
+    local skill_name="$1"
+    awk -F '\t' -v name="$skill_name" '$1==name {print $3; exit}' "$EXISTING_META"
+}
 
 # 计数器
 custom_count=0
@@ -29,7 +74,7 @@ for skill_dir in "$REPO_ROOT"/*/; do
         continue
     fi
 
-    # 提取 frontmatter 中的 name 和 description
+    # 提取 frontmatter 中的 name
     # 使用 Python 来处理 YAML frontmatter（更可靠）
     frontmatter=$(python3 -c "
 import sys
@@ -44,15 +89,12 @@ try:
 
     fm = match.group(1)
     name = ''
-    description = ''
 
     for line in fm.split('\n'):
         if line.startswith('name:'):
             name = line.split(':', 1)[1].strip().strip('\"')
-        elif line.startswith('description:'):
-            description = line.split(':', 1)[1].strip().strip('\"')
 
-    print(f'{name}|||{description}')
+    print(f'{name}')
 except Exception as e:
     sys.exit(1)
 " 2>/dev/null)
@@ -60,20 +102,13 @@ except Exception as e:
     if [[ -z "$frontmatter" ]]; then
         # Python 失败，回退到 awk
         name=$(awk '/^name:/ {$1=""; gsub(/^[ \t]+|[ \t]+$/, ""); gsub(/^"|"$/, ""); print; exit}' "$skill_file")
-        description=$(awk '/^description:/ {$1=""; gsub(/^[ \t]+|[ \t]+$/, ""); gsub(/^"|"$/, ""); print; exit}' "$skill_file")
     else
-        name=$(echo "$frontmatter" | cut -d'|' -f1)
-        description=$(echo "$frontmatter" | cut -d'|' -f4)
+        name="$frontmatter"
     fi
 
     # 如果没有提取到 name，使用目录名
     if [[ -z "$name" ]]; then
         name="$dir_name"
-    fi
-
-    # 如果没有提取到 description，使用默认描述
-    if [[ -z "$description" ]]; then
-        description="暂无描述"
     fi
 
     # 判断是自己创建的还是社区安装的
@@ -88,8 +123,8 @@ except Exception as e:
         ((custom_count++))
     fi
 
-    # 存储数据：source|name|description|dir_name|source_repo
-    echo "$source|$name|$description|$dir_name|$source_repo" >> "$SKILLS_DATA"
+    # 存储数据：source|name|dir_name|source_repo
+    echo "$source|$name|$dir_name|$source_repo" >> "$SKILLS_DATA"
 done
 
 # 按类型和名称排序
@@ -116,13 +151,23 @@ if [[ $custom_count -gt 0 ]]; then
     echo "## 🎨 自己创建的 Skills" >> "$SKILLS_DOC"
     echo "" >> "$SKILLS_DOC"
 
-    while IFS='|' read -r source name description dir_name source_repo; do
+    while IFS='|' read -r source name dir_name source_repo; do
         if [[ "$source" != "custom" ]]; then
             continue
         fi
 
+        zh_desc="$(get_zh_desc "$name")"
+        keywords="$(get_keywords "$name")"
+        if [[ -z "$zh_desc" ]]; then
+            zh_desc="（待补充）"
+        fi
+        if [[ -z "$keywords" ]]; then
+            keywords="（待补充）"
+        fi
+
         echo "### $name" >> "$SKILLS_DOC"
-        echo "**用途：** $description" >> "$SKILLS_DOC"
+        echo "**用途：** $zh_desc" >> "$SKILLS_DOC"
+        echo "**触发关键词：** $keywords" >> "$SKILLS_DOC"
         echo "" >> "$SKILLS_DOC"
         echo "**位置：** \`~/Workspace/my-ai-skills/$dir_name/\`" >> "$SKILLS_DOC"
         echo "" >> "$SKILLS_DOC"
@@ -136,13 +181,23 @@ if [[ $community_count -gt 0 ]]; then
     echo "## 🌐 社区安装的 Skills" >> "$SKILLS_DOC"
     echo "" >> "$SKILLS_DOC"
 
-    while IFS='|' read -r source name description dir_name source_repo; do
+    while IFS='|' read -r source name dir_name source_repo; do
         if [[ "$source" != "community" ]]; then
             continue
         fi
 
+        zh_desc="$(get_zh_desc "$name")"
+        keywords="$(get_keywords "$name")"
+        if [[ -z "$zh_desc" ]]; then
+            zh_desc="（待补充）"
+        fi
+        if [[ -z "$keywords" ]]; then
+            keywords="（待补充）"
+        fi
+
         echo "### $name" >> "$SKILLS_DOC"
-        echo "**用途：** $description" >> "$SKILLS_DOC"
+        echo "**用途：** $zh_desc" >> "$SKILLS_DOC"
+        echo "**触发关键词：** $keywords" >> "$SKILLS_DOC"
         echo "" >> "$SKILLS_DOC"
         echo "**来源：** $source_repo" >> "$SKILLS_DOC"
         echo "" >> "$SKILLS_DOC"
@@ -174,12 +229,13 @@ bash ~/Workspace/my-ai-skills/shared/scripts/update-skills-list.sh
 # 自动更新时机
 # 1. 创建新 skill 后
 # 2. 安装新 skill 后
-# 3. 修改 skill 描述后
+# 3. 修改技能列表中文描述后
 \`\`\`
 STATS_EOF
 
 # 清理
 rm "$SKILLS_DATA"
+rm "$EXISTING_META"
 
 echo "✅ Skills 列表已更新到 INSTALLED_SKILLS.md"
 echo ""

@@ -436,7 +436,42 @@ The packaging script will:
 
 If validation fails, the script will report the errors and exit without creating a package. Fix any validation errors and run the packaging command again.
 
-### Step 7: Iterate
+### Step 7: Update Skills List
+
+After creating or updating a skill, update the central repository's skills list:
+
+```bash
+bash ~/Workspace/my-ai-skills/shared/scripts/update-skills-list.sh
+```
+
+**补充中文描述与触发关键词（由当前 AI 负责）**：
+
+创建或更新 skill 后，AI 助手需要在 INSTALLED_SKILLS.md 中为每个条目补充中文描述与触发关键词，不保留英文原文描述：
+
+**条目格式**：
+```
+**用途：** <中文描述>
+**触发关键词：** <关键词1>、<关键词2>、<关键词3>
+```
+
+- **翻译规则**：
+  - 保留专用词汇：Remotion、React、Next.js、Vue、TailwindCSS、Three.js、Lottie、Zod、Mapbox、WebGL 等框架/库名
+  - 保留工具名：Claude Code、Cursor、GitHub、npm、git 等
+  - 保留技术术语：skill、agent、API、CLI、TTY、JSON、props、hooks 等
+  - 保留文件格式：.srt、.md、.json、.ts 等
+  - 翻译描述性文字为中文
+
+- **关键词规则**：
+  - 直接来自英文描述与正文中的触发语义
+  - 使用用户可能会说的话（中文短语即可）
+  - 3-8 个为宜，使用顿号 `、` 分隔
+  - 不要翻译专有名词（如 React、Next.js 等）
+
+- **触发方式**：
+  - 自动触发：创建/更新 skill 后自动补充中文描述与关键词
+  - 手动触发：用户说"翻译技能列表"、"中文化描述"、"补充触发关键词"
+
+### Step 8: Iterate
 
 After testing the skill, users may request improvements. Often this happens right after using the skill, with fresh context of how the skill performed.
 

@@ -87,14 +87,17 @@ git add . && git commit -m "feat: 添加 my-skill" && git push
 ├── code-quality-check/
 ├── agent-rules-sync/
 ├── skill-creator/
+├── add-skill/                      # add-skill 管理工具
 ├── vercel-react-best-practices/    # add-skill 安装的
 ├── web-design-guidelines/          # add-skill 安装的
 ├── shared/
 │   └── scripts/
-│       ├── install.sh             # 新设备安装脚本
-│       └── verify.sh              # 验证脚本
-├── setup-universal-skills.sh      # 主设置脚本
+│       ├── install.sh              # 新设备安装脚本
+│       ├── verify.sh               # 验证脚本
+│       └── update-skills-list.sh   # 更新 skills 列表
+├── setup-universal-skills.sh       # 主设置脚本
 ├── README.md
+├── INSTALLED_SKILLS.md             # 已安装的 skills 列表（自动生成）
 ├── BEST-PRACTICES.md
 └── SETUP-SUMMARY.md (本文件)
 ```
@@ -170,6 +173,27 @@ bash ~/Workspace/my-ai-skills/shared/scripts/install.sh
 ```bash
 bash ~/Workspace/my-ai-skills/shared/scripts/verify.sh
 ```
+
+### shared/scripts/update-skills-list.sh
+
+**Skills 列表更新脚本** - 自动维护 INSTALLED_SKILLS.md
+
+功能：
+- 扫描所有已安装的 skills
+- 从 SKILL.md frontmatter 提取名称和描述
+- 自动更新 INSTALLED_SKILLS.md
+- 区分自己创建的和社区安装的 skills
+- 添加时间戳
+
+用法：
+```bash
+bash ~/Workspace/my-ai-skills/shared/scripts/update-skills-list.sh
+```
+
+**自动更新时机：**
+- 创建新 skill 后
+- 通过 add-skill 安装 skill 后
+- 修改 skill 描述后
 
 ---
 
@@ -257,14 +281,34 @@ npx add-skill vercel-labs/agent-skills -g -y
 ```bash
 cd ~/Workspace/my-ai-skills
 mkdir my-skill && vim my-skill/SKILL.md
-git add . && git commit && git push
+
+# 更新 skills 列表
+bash shared/scripts/update-skills-list.sh
+
+# 提交
+git add my-skill/ INSTALLED_SKILLS.md
+git commit -m "feat: 添加 my-skill"
+git push
 ```
 
 **社区 skills** - 使用 add-skill 安装：
 ```bash
+# 安装
 npx add-skill vercel-labs/agent-skills --skill xxx -g
+
+# 更新列表
 cd ~/Workspace/my-ai-skills
-git add . && git commit -m "feat: 安装 xxx skill" && git push
+bash shared/scripts/update-skills-list.sh
+
+# 提交
+git add xxx/ INSTALLED_SKILLS.md
+git commit -m "feat: 安装 xxx skill"
+git push
+```
+
+**查看已安装的 skills：**
+```bash
+cat ~/Workspace/my-ai-skills/INSTALLED_SKILLS.md
 ```
 
 ### Git 工作流
@@ -340,6 +384,7 @@ ssh -T git@github.com
 ## 📖 相关文档
 
 - **README.md** - 快速入门和使用指南
+- **INSTALLED_SKILLS.md** - 已安装的 skills 列表（自动生成和维护）
 - **BEST-PRACTICES.md** - 创建跨工具兼容的 skills
 - **GITHUB-PUSH-GUIDE.md** - GitHub 推送指南
 
@@ -361,6 +406,11 @@ A:
 ```bash
 cd ~/Workspace/my-ai-skills
 rm -rf skill-name
+
+# 更新列表
+bash shared/scripts/update-skills-list.sh
+
+# 提交
 git add . && git commit -m "remove: skill-name" && git push
 ```
 

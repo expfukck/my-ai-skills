@@ -79,7 +79,11 @@ description: 我的 Skill 描述
 Skill 内容...
 SKILL_EOF
 
-git add my-skill/
+# 更新 skills 列表
+bash ~/Workspace/my-ai-skills/shared/scripts/update-skills-list.sh
+
+# 提交到 Git
+git add my-skill/ INSTALLED_SKILLS.md
 git commit -m "feat: 添加 my-skill"
 git push
 ```
@@ -121,17 +125,16 @@ bash ~/Workspace/my-ai-skills/shared/scripts/verify.sh
 
 ## 文档
 
+- [已安装的 Skills](INSTALLED_SKILLS.md) - 查看所有已安装的 skills（自动更新）
 - [最佳实践](BEST-PRACTICES.md) - 创建跨工具兼容的 Skills
 - [设置总结](SETUP-SUMMARY.md) - 详细的设置说明
 - [GitHub 推送指南](GITHUB-PUSH-GUIDE.md) - 如何推送到 GitHub
 
 ## 当前 Skills
 
-- **commit-conventional** - 符合约定式提交规范的 Git 提交
-- **code-quality-check** - 通用代码质量检查
-- **agent-rules-sync** - 同步 AGENTS 规则到 CLAUDE.md
-- **skill-creator** - 创建新 skill 的辅助工具
-- **frontend-design** - 前端设计最佳实践
+📋 查看完整的 skills 列表：**[INSTALLED_SKILLS.md](INSTALLED_SKILLS.md)**
+
+该文档由脚本自动维护，包含所有已安装 skills 的详细信息（用途、位置、来源等）。
 
 ## 技术细节
 
@@ -139,19 +142,23 @@ bash ~/Workspace/my-ai-skills/shared/scripts/verify.sh
 
 ```
 ~/Workspace/my-ai-skills/
-├── .git/                    # Git 仓库
-├── commit-conventional/     # 你的 skills
+├── .git/                           # Git 仓库
+├── commit-conventional/            # 你的 skills
 ├── code-quality-check/
 ├── skill-creator/
-├── vercel-react-best-practices/  # add-skill 安装的
-├── web-design-guidelines/        # add-skill 安装的
+├── add-skill/                      # 新增：add-skill 管理工具
+├── vercel-react-best-practices/    # add-skill 安装的
+├── web-design-guidelines/          # add-skill 安装的
 ├── shared/
 │   └── scripts/
-│       ├── install.sh      # 新设备安装脚本
-│       └── verify.sh       # 验证脚本
-├── setup-universal-skills.sh  # 主设置脚本
+│       ├── install.sh              # 新设备安装脚本
+│       ├── verify.sh               # 验证脚本
+│       └── update-skills-list.sh   # 更新 skills 列表
+├── setup-universal-skills.sh       # 主设置脚本
 ├── README.md
-└── BEST-PRACTICES.md
+├── INSTALLED_SKILLS.md             # 已安装的 skills 列表（自动生成）
+├── BEST-PRACTICES.md
+└── SETUP-SUMMARY.md
 ```
 
 ### 软链接架构
@@ -163,6 +170,30 @@ bash ~/Workspace/my-ai-skills/shared/scripts/verify.sh
 ...
 ```
 
+## Skills 管理工具
+
+本仓库包含两个辅助工具来管理 skills：
+
+### add-skill
+用于通过 `npx add-skill` 安装和管理社区 skills。
+
+**触发方式：** 对话中说"安装 XXX skill"
+
+**功能：**
+- 从 vercel-labs/agent-skills 等仓库安装 skills
+- 自动更新 INSTALLED_SKILLS.md
+- 提醒提交到 Git
+
+### skill-creator
+用于创建新的自定义 skills。
+
+**触发方式：** 对话中说"创建新 skill"
+
+**功能：**
+- 提供 skill 创建指导
+- 遵循最佳实践
+- 自动更新 skills 列表
+
 ## FAQ
 
 **Q: add-skill 和手动创建的区别？**
@@ -172,15 +203,26 @@ bash ~/Workspace/my-ai-skills/shared/scripts/verify.sh
 **Q: 会不会安装多份？**
 - 不会！所有 skills 都在 `~/Workspace/my-ai-skills`，只有一份
 
+**Q: 如何查看已安装的 skills？**
+```bash
+# 查看详细列表
+cat ~/Workspace/my-ai-skills/INSTALLED_SKILLS.md
+
+# 或者在对话中说
+"列出已安装的 skills"
+```
+
 **Q: 如何更新社区 skills？**
 ```bash
 npx add-skill vercel-labs/agent-skills --skill skill-name -g
+bash ~/Workspace/my-ai-skills/shared/scripts/update-skills-list.sh
 ```
 
 **Q: 如何删除 skill？**
 ```bash
 cd ~/Workspace/my-ai-skills
 rm -rf skill-name
+bash ~/Workspace/my-ai-skills/shared/scripts/update-skills-list.sh
 git add . && git commit -m "remove: skill-name" && git push
 ```
 

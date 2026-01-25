@@ -464,12 +464,29 @@ allowed-tools: Read, Grep, Glob
 ~/Workspace/my-ai-skills/
 ├── skill-name/
 │   ├── SKILL.md              # 主 Skill（通用 + 可选高级功能）
-│   ├── COMPATIBILITY.md      # 兼容性说明
-│   ├── README.md             # 使用文档
+│   ├── COMPATIBILITY.md      # 兼容性说明（可选）
+│   ├── README.md             # 使用文档（可选）
 │   └── scripts/              # 辅助脚本（可选）
 │       └── validate.sh
-└── BEST-PRACTICES.md         # 本文档
+├── INSTALLED_SKILLS.md       # 已安装的 skills 列表（自动维护）
+├── BEST-PRACTICES.md         # 本文档
+└── shared/scripts/
+    └── update-skills-list.sh # Skills 列表更新脚本
 ```
+
+### **Skills 列表维护**
+
+创建或安装 skill 后，记得更新 skills 列表：
+
+```bash
+bash ~/Workspace/my-ai-skills/shared/scripts/update-skills-list.sh
+```
+
+这个脚本会：
+- 自动扫描所有 skills
+- 从 SKILL.md 提取信息
+- 更新 INSTALLED_SKILLS.md
+- 添加时间戳
 
 ---
 

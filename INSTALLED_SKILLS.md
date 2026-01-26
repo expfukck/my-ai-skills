@@ -2,7 +2,7 @@
 
 > 本文档由 `shared/scripts/update-skills-list.sh` 自动生成和维护
 > 文件名：`INSTALLED_SKILLS.md` - 避免与各 skill 目录中的 `SKILL.md` 混淆
-> 最后更新：2026-01-26 03:00:06
+> 最后更新：2026-01-26 19:20:16
 
 ---
 
@@ -64,14 +64,6 @@
 
 ---
 
-### remotion-best-practices
-**用途：** Remotion 与 React 视频制作的最佳实践指南。
-**触发关键词：** Remotion、React 视频、视频制作、最佳实践
-
-**位置：** `~/Workspace/my-ai-skills/remotion-best-practices/`
-
----
-
 ### skill-creator
 **用途：** 创建或更新 skill 的流程与规范指南。
 **触发关键词：** 创建 skill、更新 skill、制作自定义技能、skill 设计、工作流
@@ -104,8 +96,8 @@
 
 ## 📊 统计信息
 
-- **总计：** 11 个 skills
-- **自己创建：** 9 个
+- **总计：** 10 个 skills
+- **自己创建：** 8 个
 - **社区安装：** 2 个
 
 ---

@@ -68,7 +68,12 @@ skill-name/
 
 Every SKILL.md consists of:
 
-- **Frontmatter** (YAML): Contains `name` and `description` fields. These are the only fields that Claude reads to determine when the skill gets used, thus it is very important to be clear and comprehensive in describing what the skill is, and when it should be used.
+- **Frontmatter** (YAML): Contains required and optional metadata fields:
+  - `name` (required): The skill name
+  - `description` (required): Primary triggering mechanism - be clear and comprehensive
+  - `disable-model-invocation` (optional): Controls skill invocation behavior
+    - `false` (default): Skill can be triggered automatically based on user messages
+    - `true`: Skill only available through explicit invocation (e.g., `/skill-name`)
 - **Body** (Markdown): Instructions and guidance for using the skill. Only loaded AFTER the skill triggers (if at all).
 
 #### Bundled Resources (optional)
@@ -307,15 +312,27 @@ Any example files and directories not needed for the skill should be deleted. Th
 
 ##### Frontmatter
 
-Write the YAML frontmatter with `name` and `description`:
+Write the YAML frontmatter with required and optional fields:
 
-- `name`: The skill name
-- `description`: This is the primary triggering mechanism for your skill, and helps Claude understand when to use the skill.
+- `name` (required): The skill name
+- `description` (required): This is the primary triggering mechanism for your skill, and helps Claude understand when to use the skill.
   - Include both what the Skill does and specific triggers/contexts for when to use it.
   - Include all "when to use" information here - Not in the body. The body is only loaded after triggering, so "When to Use This Skill" sections in the body are not helpful to Claude.
   - Example description for a `docx` skill: "Comprehensive document creation, editing, and analysis with support for tracked changes, comments, formatting preservation, and text extraction. Use when Claude needs to work with professional documents (.docx files) for: (1) Creating new documents, (2) Modifying or editing content, (3) Working with tracked changes, (4) Adding comments, or any other document tasks"
-
-Do not include any other fields in YAML frontmatter.
+- `disable-model-invocation` (optional): Controls how the skill can be invoked
+  - **`false` (default)**: Skill can be triggered automatically based on user messages matching the description
+  - **`true`**: Skill is only available through explicit invocation (e.g., `/skill-name`). Use this for:
+    - Skills that should never trigger automatically (e.g., sensitive operations)
+    - Tools that require explicit user intent (e.g., humanize-text, humanizer)
+    - Skills with potential side effects or costs
+  - Example:
+    ```yaml
+    ---
+    name: humanize-text
+    description: "Reduces AI detection rates in AI-generated text..."
+    disable-model-invocation: true
+    ---
+    ```
 
 ##### Body
 

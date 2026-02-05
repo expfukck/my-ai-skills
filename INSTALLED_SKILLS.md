@@ -2,19 +2,11 @@
 
 > 本文档由 `shared/scripts/update-skills-list.sh` 自动生成和维护
 > 文件名：`INSTALLED_SKILLS.md` - 避免与各 skill 目录中的 `SKILL.md` 混淆
-> 最后更新：2026-02-05 16:54:32
+> 最后更新：2026-02-05 22:43:03
 
 ---
 
 ## 🎨 自己创建的 Skills
-
-### install-skill
-**用途：** 使用 npx skills add 安装、更新并管理 skills 与来源仓库。
-**触发关键词：** 安装 skill、更新 skill、skills add、从 GitHub 安装、浏览 skills
-
-**位置：** `~/Workspace/my-ai-skills/install-skill/`
-
----
 
 ### agent-rules-sync
 **用途：** 统一维护并同步多平台全局规则，处理明确写入指令。
@@ -40,6 +32,14 @@
 
 ---
 
+### create-skill
+**用途：** 创建或更新 skill 的流程与规范指南。
+**触发关键词：** 创建 skill、更新 skill、制作自定义技能、skill 设计、工作流
+
+**位置：** `~/Workspace/my-ai-skills/create-skill/`
+
+---
+
 ### humanize-text
 **用途：** 通过优化句法、节奏和写作模式降低 AI 文本检测率，帮助内容通过 GPTZero、腾讯朱雀等检测器；优化困惑度(Perplexity)和爆发性(Burstiness)指标，去除 Claude/ChatGPT 写作模式。
 **触发关键词：** 降低AI检测率、去AI味、通过GPTZero检测、让文章更像人写的、humanize、AI检测、腾讯朱雀、困惑度、Burstiness
@@ -48,11 +48,11 @@
 
 ---
 
-### create-skill
-**用途：** 创建或更新 skill 的流程与规范指南。
-**触发关键词：** 创建 skill、更新 skill、制作自定义技能、skill 设计、工作流
+### install-skill
+**用途：** 使用 npx skills add 安装、更新并管理 skills 与来源仓库。
+**触发关键词：** 安装 skill、更新 skill、skills add、从 GitHub 安装、浏览 skills
 
-**位置：** `~/Workspace/my-ai-skills/create-skill/`
+**位置：** `~/Workspace/my-ai-skills/install-skill/`
 
 ---
 

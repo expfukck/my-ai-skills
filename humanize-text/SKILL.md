@@ -1,6 +1,7 @@
 ---
 name: humanize-text
-description: "Reduces AI detection rates in AI-generated text by optimizing syntax, rhythm, and writing patterns to pass GPTZero, 腾讯朱雀, and other AI detectors. Optimizes text for perplexity and burstiness metrics, removes Claude/ChatGPT writing patterns. **This skill is only available through explicit invocation (e.g., /humanize-text). It will NOT trigger automatically based on user messages.**"
+description: "Reduces AI detection rates in AI-generated text by optimizing syntax, rhythm, and writing patterns to pass GPTZero, 腾讯朱雀, and other AI detectors. Optimizes text for perplexity and burstiness metrics, removes Claude/ChatGPT writing patterns."
+disable-model-invocation: true
 ---
 
 # Humanize Text - AI去味优化

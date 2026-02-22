@@ -1,7 +1,7 @@
 #!/bin/bash
 # install-skill - 安装 skills（支持全局和项目级）
 
-set -e
+set -euo pipefail
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -25,14 +25,35 @@ usage() {
 # 解析参数
 REPO=""
 SKILL_NAME=""
-GLOBAL_FLAG=""
+GLOBAL_INSTALL=false
 
 while [[ $# -gt 0 ]]; do
-    case $1 in
-        --skill) SKILL_NAME="$2"; shift 2 ;;
-        --global|-g) GLOBAL_FLAG="-g"; shift ;;
+    case "$1" in
+        --skill)
+            if [[ $# -lt 2 || -z "${2:-}" || "${2:0:1}" == "-" ]]; then
+                echo -e "${RED}❌ 错误: --skill 需要一个有效的 skill 名称${NC}"
+                usage
+            fi
+            SKILL_NAME="$2"
+            shift 2
+            ;;
+        --global|-g)
+            GLOBAL_INSTALL=true
+            shift
+            ;;
         --help|-h) usage ;;
-        *) REPO="$1"; shift ;;
+        --*)
+            echo -e "${RED}❌ 错误: 未知参数 $1${NC}"
+            usage
+            ;;
+        *)
+            if [[ -n "$REPO" ]]; then
+                echo -e "${RED}❌ 错误: 多余位置参数 $1${NC}"
+                usage
+            fi
+            REPO="$1"
+            shift
+            ;;
     esac
 done
 
@@ -42,8 +63,13 @@ if [[ -z "$REPO" ]] || [[ -z "$SKILL_NAME" ]]; then
     usage
 fi
 
+if ! command -v npx >/dev/null 2>&1; then
+    echo -e "${RED}❌ 错误: 未找到 npx，请先安装 Node.js${NC}"
+    exit 1
+fi
+
 # 确定安装位置和类型
-if [[ -n "$GLOBAL_FLAG" ]]; then
+if [[ "$GLOBAL_INSTALL" == true ]]; then
     INSTALL_LOCATION="~/.agents/skills"
     INSTALL_TYPE="全局"
 else
@@ -58,7 +84,12 @@ echo ""
 
 # 使用 npx skills add（非交互式）
 echo -e "${YELLOW}⏳ 正在安装...${NC}"
-if npx skills add "$REPO" --skill "$SKILL_NAME" -y $GLOBAL_FLAG; then
+install_cmd=(npx skills add "$REPO" --skill "$SKILL_NAME" -y)
+if [[ "$GLOBAL_INSTALL" == true ]]; then
+    install_cmd+=(-g)
+fi
+
+if "${install_cmd[@]}"; then
     echo -e "${GREEN}✅ Skill 安装成功${NC}"
 else
     echo -e "${RED}❌ 安装失败${NC}"
@@ -66,20 +97,28 @@ else
 fi
 
 # 后处理：仅全局安装需要更新列表
-if [[ -n "$GLOBAL_FLAG" ]]; then
+if [[ "$GLOBAL_INSTALL" == true ]]; then
     echo ""
     echo -e "${YELLOW}⏳ 正在更新 skills 列表...${NC}"
 
     UPDATE_SCRIPT=""
+    UPDATE_ROOT=""
     if [[ -f "$HOME/.agents/skills/shared/scripts/update-skills-list.sh" ]]; then
         UPDATE_SCRIPT="$HOME/.agents/skills/shared/scripts/update-skills-list.sh"
+        UPDATE_ROOT="$HOME/.agents/skills"
     elif [[ -f "$HOME/Workspace/my-ai-skills/shared/scripts/update-skills-list.sh" ]]; then
         UPDATE_SCRIPT="$HOME/Workspace/my-ai-skills/shared/scripts/update-skills-list.sh"
+        UPDATE_ROOT="$HOME/Workspace/my-ai-skills"
     fi
 
     if [[ -n "$UPDATE_SCRIPT" ]]; then
-        bash "$UPDATE_SCRIPT"
-        echo -e "${GREEN}✅ Skills 列表已更新${NC}"
+        if SKILLS_DIR="$UPDATE_ROOT" bash "$UPDATE_SCRIPT"; then
+            echo -e "${GREEN}✅ Skills 列表已更新${NC}"
+        else
+            echo -e "${YELLOW}⚠️  Skills 列表更新失败，请手动执行：SKILLS_DIR=\"$UPDATE_ROOT\" bash \"$UPDATE_SCRIPT\"${NC}"
+        fi
+    else
+        echo -e "${YELLOW}⚠️  未找到 update-skills-list.sh，已跳过列表更新${NC}"
     fi
 fi
 
@@ -90,7 +129,7 @@ echo -e "${GREEN}✅ ${INSTALL_TYPE}安装成功！${NC}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
 
-if [[ -n "$GLOBAL_FLAG" ]]; then
+if [[ "$GLOBAL_INSTALL" == true ]]; then
     echo -e "${BLUE}📍 位置: ~/.agents/skills/${SKILL_NAME}${NC}"
     echo -e "${BLUE}🔗 已自动链接到所有 AI 编码工具${NC}"
     echo ""

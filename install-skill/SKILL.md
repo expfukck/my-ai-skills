@@ -60,7 +60,7 @@ npx skills add vercel-labs/agent-skills --skill frontend-design -y -g
 npx skills add anthropics/skills --skill planning -y
 
 # 全局安装后更新列表
-bash ~/.agents/skills/shared/scripts/update-skills-list.sh
+SKILLS_DIR="$HOME/.agents/skills" bash "$HOME/.agents/skills/shared/scripts/update-skills-list.sh"
 ```
 
 ## 常见仓库

@@ -9,7 +9,7 @@ license: Complete terms in LICENSE.txt
 创建新的 skill，支持全局和项目级两种模式。
 
 ## Default behavior in this repo
-When creating or updating skills in the central repository (`~/Workspace/my-ai-skills`), default to **cross-platform compatibility**. If any platform-specific behavior is required, isolate it into separate sections or references (or split into platform-specific skills) so other platforms are not affected.
+When creating or updating skills in the central repository (`~/.agents/skills`, with `~/Workspace/my-ai-skills` as convenience symlink), default to **cross-platform compatibility**. If any platform-specific behavior is required, isolate it into separate sections or references (or split into platform-specific skills) so other platforms are not affected.
 
 ## About Skills
 
@@ -340,28 +340,29 @@ Write instructions for using the skill and its bundled resources.
 
 ### Step 5: Creating Cross-Platform Symlinks
 
-**Important**: After creating a skill, set up symlinks so all AI agents can access it. Use the dedicated script to ensure correct two-layer symlink architecture.
+**Important**: After creating a skill, set up symlinks so all AI agents can access it. Use the repository script to ensure consistent per-skill links across platforms.
 
 #### For Global Skills (Central Repository)
 
-For skills in the central repository (`~/Workspace/my-ai-skills`), **always use the script** instead of manual commands:
+For skills in the central repository (`~/.agents/skills`), **always use the script** instead of manual commands:
 
 ```bash
-# Run the symlink creation script
-bash ~/Workspace/my-ai-skills/skill-creator/scripts/create-symlinks.sh <skill-name>
+# Refresh per-skill links for all supported agents
+SKILLS_DIR="$HOME/.agents/skills" bash "$HOME/.agents/skills/shared/scripts/install.sh"
 ```
 
 **Example**:
 ```bash
-bash ~/Workspace/my-ai-skills/skill-creator/scripts/create-symlinks.sh humanize-text
+# After creating/updating a global skill directory, refresh platform links
+SKILLS_DIR="$HOME/.agents/skills" bash "$HOME/.agents/skills/shared/scripts/install.sh"
 ```
 
 **What this script does**:
-1. **First layer**: Creates `~/.agents/skills/<skill-name>` → `~/Workspace/my-ai-skills/<skill-name>` (absolute path)
-2. **Second layer**: Creates `~/.claude/skills/<skill-name>` → `../../.agents/skills/<skill-name>` (relative path, repeated for all 8 AI platforms)
+1. Treats `~/.agents/skills` as the authoritative skill directory (no first-layer link needed)
+2. Creates/repairs per-skill links under each agent directory (Claude/Codex/Cursor/Gemini/etc.) pointing to `~/.agents/skills/<skill-name>`
 
 **Why use the script**:
-- Ensures correct two-layer architecture (manual commands often miss the first layer)
+- Ensures consistent per-skill fan-out to all supported platforms
 - Handles edge cases (existing links, missing directories)
 - Consistent with `add-skill` behavior
 - Reduces human error
@@ -397,12 +398,12 @@ done
 ```
 
 **Key differences from global skills**:
-- **Global skills**: Two-layer architecture (central repo → ~/.agents/skills → platforms)
+- **Global skills**: Central repo is `~/.agents/skills` (real directory) and workspace path is optional convenience symlink
 - **Project skills**: Single-layer architecture (.agents/skills → platforms)
-- **Global skills**: Use absolute paths to central repo
+- **Global skills**: Use shared install script for platform fan-out
 - **Project skills**: Use relative paths within project
 
-**Note**: Project-level skills are rare. Most skills should be created in the central repository (`~/Workspace/my-ai-skills`) for cross-project reuse.
+**Note**: Project-level skills are rare. Most skills should be created in the central repository (`~/.agents/skills`, or via `~/Workspace/my-ai-skills`) for cross-project reuse.
 
 ### Step 6: Packaging a Skill
 
@@ -436,7 +437,7 @@ If validation fails, the script will report the errors and exit without creating
 After creating or updating a skill, update the central repository's skills list:
 
 ```bash
-bash ~/Workspace/my-ai-skills/shared/scripts/update-skills-list.sh
+SKILLS_DIR="$HOME/.agents/skills" bash "$HOME/.agents/skills/shared/scripts/update-skills-list.sh"
 ```
 
 **生成中文用途描述与触发关键词（由执行该任务的 AI 负责）**：

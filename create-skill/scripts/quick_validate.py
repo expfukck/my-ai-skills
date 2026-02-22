@@ -4,10 +4,28 @@ Quick validation script for skills - minimal version
 """
 
 import sys
-import os
 import re
 import yaml
 from pathlib import Path
+
+
+ALLOWED_PROPERTIES = {
+    'name',
+    'description',
+    'license',
+    'allowed-tools',
+    'metadata',
+    'disable-model-invocation',
+    'argument-hint',
+    'compatibility',
+    'model',
+    'hooks',
+    'context',
+    'agent',
+    'user-invocable',
+    'version',
+    'author',
+}
 
 def validate_skill(skill_path):
     """Basic validation of a skill"""
@@ -37,9 +55,6 @@ def validate_skill(skill_path):
             return False, "Frontmatter must be a YAML dictionary"
     except yaml.YAMLError as e:
         return False, f"Invalid YAML in frontmatter: {e}"
-
-    # Define allowed properties
-    ALLOWED_PROPERTIES = {'name', 'description', 'license', 'allowed-tools', 'metadata'}
 
     # Check for unexpected properties (excluding nested keys under metadata)
     unexpected_keys = set(frontmatter.keys()) - ALLOWED_PROPERTIES

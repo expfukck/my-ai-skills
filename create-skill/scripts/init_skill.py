@@ -13,13 +13,13 @@ Examples:
 
 import sys
 import json
-from datetime import datetime
+from datetime import datetime, UTC
 from pathlib import Path
 
 
 SKILL_TEMPLATE = """---
 name: {skill_name}
-description: [TODO: Complete and informative explanation of what the skill does and when to use it. Include WHEN to use this skill - specific scenarios, file types, or tasks that trigger it.]
+description: "TODO: Complete and informative explanation of what the skill does and when to use it. Include WHEN to use this skill - specific scenarios, file types, or tasks that trigger it."
 ---
 
 # {skill_title}
@@ -267,7 +267,7 @@ def init_skill(skill_name, path):
         meta = {
             "source": "custom",
             "created_by": "skill-creator",
-            "created_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "created_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
         meta_path = skill_dir / ".skill-source.json"
         meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2))

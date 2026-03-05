@@ -276,6 +276,14 @@ EXTERNAL_URL_RE = re.compile(r"(?i)https?://([a-z0-9.-]+)")
 BASE64_RE = re.compile(r"[A-Za-z0-9+/]{100,}={0,2}")
 HIDDEN_CHAR_RE = re.compile(r"[\u200b\u200c\u200d\u2060\ufeff\u202a-\u202e\u2066-\u2069]")
 
+BENIGN_PKG_INSTALL_RE = re.compile(
+    r"(?i)^\s*"
+    r"(?:sudo\s+)?(?:apt(?:-get)?|dnf|yum|pacman|zypper|apk|brew|winget|choco)\b"
+    r"[^|;`$]*"
+    r"(?:\s*&&\s*(?:sudo\s+)?(?:apt(?:-get)?|dnf|yum|pacman|zypper|apk|brew|winget|choco)\b[^|;`$]*)*"
+    r"\s*$"
+)
+
 MIN_ENTROPY_LEN = 120
 ENTROPY_THRESHOLD = 6.2
 
@@ -458,6 +466,14 @@ def find_line_number(lines: list[str], token: str) -> int:
     return 1
 
 
+def is_benign_pkg_install_line(file_path: str, line: str) -> bool:
+    if os.path.basename(file_path) != "SKILL.md":
+        return False
+    if "|" in line or "; " in line or "`" in line or "$(" in line:
+        return False
+    return bool(BENIGN_PKG_INSTALL_RE.match(line.strip()))
+
+
 def add_line_pattern_findings(
     findings: list[Finding],
     sf: ScannableFile,
@@ -469,19 +485,29 @@ def add_line_pattern_findings(
         for pattern, title, severity, recommendation, confidence in patterns:
             if not pattern.search(line):
                 continue
-            if is_doc_context(sf.path, line) and severity >= Severity.HIGH:
+            adjusted_severity = severity
+            adjusted_title = title
+            adjusted_recommendation = recommendation
+
+            # Avoid false positives for OS package manager install examples in docs.
+            if rule_prefix == "PRIV_ESC" and is_benign_pkg_install_line(sf.path, line):
+                adjusted_severity = Severity.MEDIUM
+                adjusted_title = "Package manager install command in documentation"
+                adjusted_recommendation = "确认该命令仅用于环境准备说明，且不包含下载执行链路。"
+
+            if is_doc_context(sf.path, line) and adjusted_severity >= Severity.HIGH:
                 continue
 
             findings.append(
                 Finding(
                     rule_id=f"{rule_prefix}_{idx}",
-                    title=title,
-                    severity=severity,
+                    title=adjusted_title,
+                    severity=adjusted_severity,
                     category=category,
                     file_path=sf.path,
                     line_number=idx,
-                    detail=title,
-                    recommendation=recommendation,
+                    detail=adjusted_title,
+                    recommendation=adjusted_recommendation,
                     snippet=line.strip()[:220],
                     confidence=confidence,
                 )

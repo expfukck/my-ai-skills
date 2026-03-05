@@ -19,6 +19,8 @@ usage() {
     echo "参数:"
     echo "  --global, -g    全局安装（到 ~/.agents/skills，跨项目共享）"
     echo "  不带 -g         项目级安装（到 ./.agents/skills，仅当前项目）"
+    echo "  --rollback-on-fail      本地深扫失败时自动回滚（默认开启）"
+    echo "  --no-rollback-on-fail   关闭自动回滚"
     echo ""
     echo "说明:"
     echo "  安装和更新都会强制执行安全检查（远程预审 + 本地深扫）"
@@ -134,10 +136,86 @@ resolve_github_token_for_scan() {
     return 1
 }
 
+write_source_metadata() {
+    local target_path="$1"
+    local source_repo="$2"
+    local meta_file="$target_path/.skill-source.json"
+    local now_utc
+    now_utc="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+    python3 - "$meta_file" "$source_repo" "$now_utc" <<'PY'
+import json
+import os
+import sys
+
+meta_file, source_repo, now_utc = sys.argv[1:4]
+data = {}
+
+if os.path.exists(meta_file):
+    try:
+        with open(meta_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        data = {}
+
+data["source"] = "community"
+data["source_repo"] = source_repo
+data["installed_by"] = "install-skill"
+data.setdefault("installed_at", now_utc)
+data["updated_at"] = now_utc
+
+with open(meta_file, "w", encoding="utf-8") as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+    f.write("\n")
+PY
+}
+
+cleanup_rollback_backup() {
+    if [[ -n "${ROLLBACK_BACKUP_DIR:-}" ]] && [[ -d "${ROLLBACK_BACKUP_DIR:-}" ]]; then
+        rm -rf "$ROLLBACK_BACKUP_DIR"
+    fi
+}
+
+rollback_after_failed_scan() {
+    local target_path="$1"
+
+    if [[ "$ROLLBACK_ON_FAIL" != true ]]; then
+        return 1
+    fi
+
+    if [[ "$target_path" != "$INSTALL_ROOT/"* ]]; then
+        echo -e "${YELLOW}⚠️ 回滚被跳过：目标路径不在安装根目录内 (${target_path})${NC}"
+        return 1
+    fi
+
+    if [[ "$OPERATION" == "安装" ]]; then
+        if [[ -e "$target_path" ]]; then
+            rm -rf "$target_path"
+            echo -e "${GREEN}↩️ 已回滚安装：删除 ${target_path}${NC}"
+        fi
+        return 0
+    fi
+
+    if [[ -z "${ROLLBACK_BACKUP_PATH:-}" ]] || [[ ! -e "${ROLLBACK_BACKUP_PATH:-}" ]]; then
+        echo -e "${YELLOW}⚠️ 回滚失败：未找到更新前备份${NC}"
+        return 1
+    fi
+
+    rm -rf "$target_path"
+    cp -a "$ROLLBACK_BACKUP_PATH" "$target_path"
+    echo -e "${GREEN}↩️ 已回滚更新：恢复 ${target_path}${NC}"
+    return 0
+}
+
 # 解析参数
 REPO=""
 SKILL_NAME=""
 GLOBAL_INSTALL=false
+ROLLBACK_ON_FAIL=true
+ROLLBACK_BACKUP_DIR=""
+ROLLBACK_BACKUP_PATH=""
+
+trap cleanup_rollback_backup EXIT
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -151,6 +229,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         --global|-g)
             GLOBAL_INSTALL=true
+            shift
+            ;;
+        --rollback-on-fail)
+            ROLLBACK_ON_FAIL=true
+            shift
+            ;;
+        --no-rollback-on-fail|--no-rollback)
+            ROLLBACK_ON_FAIL=false
             shift
             ;;
         --help|-h) usage ;;
@@ -215,12 +301,26 @@ fi
 echo -e "${BLUE}📦 ${INSTALL_TYPE}${OPERATION} Skill: ${SKILL_NAME}${NC}"
 echo -e "${BLUE}📍 来源: ${REPO}${NC}"
 echo -e "${BLUE}📂 位置: ${INSTALL_LOCATION}${NC}"
+if [[ "$ROLLBACK_ON_FAIL" == true ]]; then
+    echo -e "${BLUE}🧯 本地深扫失败自动回滚: 开启${NC}"
+else
+    echo -e "${YELLOW}🧯 本地深扫失败自动回滚: 关闭${NC}"
+fi
 echo ""
 
 echo -e "${YELLOW}🔒 执行远程安全预审...${NC}"
 if ! run_security_check "$SECURITY_GUARD_SCRIPT" github "$REPO"; then
     echo -e "${RED}❌ 已阻断${OPERATION}，请先处理远程仓库风险${NC}"
     exit 1
+fi
+
+if [[ "$OPERATION" == "更新" ]] && [[ "$ROLLBACK_ON_FAIL" == true ]]; then
+    ROLLBACK_BACKUP_DIR="$(mktemp -d)"
+    ROLLBACK_BACKUP_PATH="$ROLLBACK_BACKUP_DIR/$SKILL_NAME"
+    if ! cp -a "$TARGET_SKILL_PATH" "$ROLLBACK_BACKUP_PATH"; then
+        echo -e "${RED}❌ 创建更新前备份失败，已终止更新${NC}"
+        exit 1
+    fi
 fi
 
 # 使用 npx skills add（非交互式）
@@ -253,6 +353,20 @@ echo ""
 echo -e "${YELLOW}🔒 执行本地安全深扫...${NC}"
 if ! run_security_check "$SECURITY_GUARD_SCRIPT" local "$TARGET_SKILL_PATH"; then
     echo -e "${RED}❌ 已${OPERATION}但安全检查未通过，请立即人工复核：${TARGET_SKILL_PATH}${NC}"
+    if rollback_after_failed_scan "$TARGET_SKILL_PATH"; then
+        echo -e "${YELLOW}⚠️ 已执行自动回滚，请复核后重试${NC}"
+    elif [[ "$ROLLBACK_ON_FAIL" == true ]]; then
+        echo -e "${YELLOW}⚠️ 自动回滚未成功，请手动处理当前目录状态${NC}"
+    fi
+    exit 1
+fi
+
+echo ""
+echo -e "${YELLOW}📝 记录安装来源元数据...${NC}"
+if write_source_metadata "$TARGET_SKILL_PATH" "$REPO"; then
+    echo -e "${GREEN}✅ 来源元数据已更新: ${REPO}${NC}"
+else
+    echo -e "${RED}❌ 写入来源元数据失败: ${TARGET_SKILL_PATH}/.skill-source.json${NC}"
     exit 1
 fi
 
@@ -260,6 +374,7 @@ fi
 if [[ "$GLOBAL_INSTALL" == true ]]; then
     echo ""
     echo -e "${YELLOW}⏳ 正在更新 skills 列表...${NC}"
+    echo -e "${BLUE}🧠 用途/触发关键词请由当前 AI 在安装后补充到 .skill-source.json${NC}"
 
     UPDATE_SCRIPT=""
     UPDATE_ROOT=""

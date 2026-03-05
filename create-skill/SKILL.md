@@ -432,25 +432,25 @@ The packaging script will:
 
 If validation fails, the script will report the errors and exit without creating a package. Fix any validation errors and run the packaging command again.
 
-### Step 7: Update Skills List
+### Step 7: Generate Skill Metadata & Update Skills List
 
-After creating or updating a skill, update the central repository's skills list:
+After creating or updating a skill, the current AI should generate Chinese metadata and write it to that skill's `.skill-source.json` first:
+
+```bash
+python3 "$HOME/.agents/skills/install-skill/scripts/set_skill_meta.py" \
+  --skill-dir "$HOME/.agents/skills/<skill-name>" \
+  --usage-zh "<中文用途一句话>" \
+  --keywords "<关键词1>、<关键词2>、<关键词3>" \
+  --generated-by "current-ai"
+```
+
+Then refresh the central skills list:
 
 ```bash
 SKILLS_DIR="$HOME/.agents/skills" bash "$HOME/.agents/skills/shared/scripts/update-skills-list.sh"
 ```
 
-**生成中文用途描述与触发关键词（由执行该任务的 AI 负责）**：
-
-创建或更新 skill 后运行 `shared/scripts/update-skills-list.sh`。随后**由当前 AI**根据该 skill 的 `description` 生成中文用途描述与触发关键词，并写回 `INSTALLED_SKILLS.md`：
-- **中文描述（用途）**：若 description 为中文直接复用；若为英文则翻译为中文（保留专有名词）
-- **触发关键词**：从 description 中抽取 3-8 个关键词（中文/英文一致，专有名词不翻译）
-
-**条目格式**：
-```
-**用途：** <中文描述>
-**触发关键词：** <关键词1>、<关键词2>、<关键词3>
-```
+`update-skills-list.sh` will read `usage_zh` and `trigger_keywords` from each skill's `.skill-source.json` and render them into `INSTALLED_SKILLS.md`.
 
 - **翻译规则**：
   - 保留专用词汇：Remotion、React、Next.js、Vue、TailwindCSS、Three.js、Lottie、Zod、Mapbox、WebGL 等框架/库名

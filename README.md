@@ -133,6 +133,9 @@ git pull
 ```bash
 # 验证设置是否正确
 bash ~/Workspace/my-ai-skills/shared/scripts/verify.sh
+
+# 机器可读输出（CI/自动化）
+SKILLS_DIR="$HOME/.agents/skills" bash "$HOME/.agents/skills/shared/scripts/verify.sh" --json
 ```
 
 ## 文档
@@ -252,6 +255,7 @@ SKILLS_DIR="$HOME/.agents/skills" bash "$HOME/.agents/skills/shared/scripts/upda
 - 从 vercel-labs/agent-skills 等仓库安装 skills
 - 支持全局安装（`-g`）和项目级安装
 - 安装和更新均强制执行安全检查（skill-security-guard）
+- 本地深扫失败默认自动回滚（可用 `--no-rollback-on-fail` 关闭）
 - 自动更新 INSTALLED_SKILLS.md
 - 提醒提交到 Git
 

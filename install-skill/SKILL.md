@@ -8,6 +8,11 @@ description: Install or update skills from GitHub repositories. Supports global 
 安装 skills，支持全局和项目级两种模式。
 安装和更新都会执行两次安全检查：远程预审 + 本地深扫。
 
+安装完成后，**由当前执行该 skill 的 AI** 直接生成并写入元数据（不依赖 API key）：
+- `用途`：中文一句话
+- `触发关键词`：5-10 个
+- `来源`：安装仓库（`source_repo`）
+
 ## 快速使用
 
 ### 全局安装（跨项目共享）
@@ -25,6 +30,24 @@ bash ~/.agents/skills/install-skill/install-skill.sh \
     anthropics/skills --skill planning
 ```
 
+## AI 后处理（必须）
+
+安装脚本成功后，当前 AI 需基于该 skill 的 `SKILL.md` 生成中文用途与关键词，并写回：
+
+```bash
+python3 ~/.agents/skills/install-skill/scripts/set_skill_meta.py \
+    --skill-dir ~/.agents/skills/<skill-name> \
+    --repo <owner/repo> \
+    --usage-zh "<中文用途一句话>" \
+    --keywords "<关键词1>、<关键词2>、<关键词3>"
+```
+
+然后刷新列表：
+
+```bash
+SKILLS_DIR="$HOME/.agents/skills" bash "$HOME/.agents/skills/shared/scripts/update-skills-list.sh"
+```
+
 ## 安全检查（强制）
 
 `install-skill.sh` 现在会自动执行：
@@ -33,6 +56,8 @@ bash ~/.agents/skills/install-skill/install-skill.sh \
 2. **本地深扫**：扫描安装后的 skill 目录（高危阈值）
 
 任一步骤发现高危/严重风险会直接终止流程。
+本地深扫失败时默认执行自动回滚（安装删除新目录，更新恢复旧版本）。
+可通过 `--no-rollback-on-fail` 显式关闭回滚。
 
 ## 架构说明
 

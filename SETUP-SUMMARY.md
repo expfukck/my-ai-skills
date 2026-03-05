@@ -172,11 +172,15 @@ bash ~/Workspace/my-ai-skills/shared/scripts/install.sh
 - 中央仓库是否存在
 - Git 是否初始化
 - ~/.agents/skills 是否为目录且每个 skill 软链接是否正确
+- 检测各工具目录中的过期软链接（stale links）
 - 列出所有可用 skills
 
 用法：
 ```bash
 bash ~/Workspace/my-ai-skills/shared/scripts/verify.sh
+
+# JSON 输出（用于脚本/自动化）
+SKILLS_DIR="$HOME/.agents/skills" bash "$HOME/.agents/skills/shared/scripts/verify.sh" --json
 ```
 
 ### shared/scripts/update-skills-list.sh

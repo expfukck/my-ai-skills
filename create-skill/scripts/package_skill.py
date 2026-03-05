@@ -15,6 +15,9 @@ import zipfile
 from pathlib import Path
 from quick_validate import validate_skill
 
+EXCLUDED_DIR_NAMES = {"__pycache__", ".git", ".svn", ".hg"}
+EXCLUDED_FILE_SUFFIXES = {".pyc", ".pyo", ".DS_Store"}
+
 
 def package_skill(skill_path, output_dir=None):
     """
@@ -69,6 +72,10 @@ def package_skill(skill_path, output_dir=None):
             # Walk through the skill directory
             for file_path in skill_path.rglob('*'):
                 if file_path.is_file():
+                    if any(part in EXCLUDED_DIR_NAMES for part in file_path.parts):
+                        continue
+                    if file_path.suffix in EXCLUDED_FILE_SUFFIXES or file_path.name in EXCLUDED_FILE_SUFFIXES:
+                        continue
                     # Calculate the relative path within the zip
                     arcname = file_path.relative_to(skill_path.parent)
                     zipf.write(file_path, arcname)

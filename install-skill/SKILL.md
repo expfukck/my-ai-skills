@@ -6,7 +6,7 @@ description: Install or update skills from GitHub repositories. Supports global 
 # Install Skill
 
 安装 skills，支持全局和项目级两种模式。
-安装和更新都会执行两次安全检查：远程预审 + 本地深扫。
+安装和更新都会执行两次安全检查：临时仓库副本预审 + 最终目录本地深扫。
 
 默认目标是**中央仓库** `~/.agents/skills`。只有用户明确要求“项目级 / 当前项目专用 / 本地临时”时，才应改为 `./.agents/skills`。
 
@@ -61,8 +61,8 @@ SKILLS_DIR="$HOME/.agents/skills" bash "$HOME/.agents/skills/shared/scripts/upda
 
 `install-skill.sh` 现在会自动执行：
 
-1. **远程预审**：扫描 `owner/repo`（高危阈值）  
-2. **本地深扫**：扫描安装后的 skill 目录（高危阈值）
+1. **临时副本预审**：先将仓库浅克隆到临时目录，再扫描这份本地副本（高危阈值）  
+2. **本地深扫**：扫描最终安装后的 skill 目录（高危阈值）
 
 任一步骤发现高危/严重风险会直接终止流程。
 本地深扫失败时默认执行自动回滚（安装删除新目录，更新恢复旧版本）。

@@ -124,6 +124,7 @@ for entry in sorted(skills_dir.iterdir()):
     if not skill_file.is_file():
         continue
     skill_name = extract_name(skill_file, entry.name)
+    embedded_git_dir = entry / ".git"
     if entry.is_symlink():
         issues.append(
             {
@@ -137,6 +138,8 @@ for entry in sorted(skills_dir.iterdir()):
 
     meta_file = entry / ".skill-source.json"
     if not meta_file.is_file():
+        if embedded_git_dir.exists():
+            continue
         issues.append(
             {
                 "severity": "warning",
@@ -217,14 +220,7 @@ for entry in sorted(skills_dir.iterdir()):
                 )
 
     if source == "custom" and not source_type:
-        issues.append(
-            {
-                "severity": "warning",
-                "type": "missing_custom_source_type",
-                "path": str(meta_file),
-                "detail": f"自定义 skill 缺少 source_type=custom：{skill_name}",
-            }
-        )
+        source_type = "custom"
 
 error_count = sum(1 for item in issues if item.get("severity") == "error")
 warning_count = sum(1 for item in issues if item.get("severity") != "error")

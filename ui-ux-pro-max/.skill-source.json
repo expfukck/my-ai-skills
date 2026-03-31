@@ -1,28 +1,24 @@
 {
   "source": "community",
-  "source_repo": "nextlevelbuilder/ui-ux-pro-max-skill",
-  "installed_by": "install-skill",
-  "installed_at": "2026-02-25T08:02:21Z",
-  "updated_at": "2026-02-25T08:21:30Z",
-  "meta_generated_by": "current-ai",
-  "meta_language": "zh-CN",
-  "meta_updated_at": "2026-02-25T08:21:30Z",
-  "usage_zh": "用于设计与审查高质量 Web/移动端 UI/UX，并快速落地设计系统。",
-  "trigger_keywords": [
-    "UI设计",
-    "UX审查",
-    "设计系统",
-    "组件规范",
-    "可访问性",
-    "响应式布局",
-    "React",
-    "Next.js"
-  ],
-  "meta_generation": "current_ai",
   "source_type": "single",
   "package_name": "ui-ux-pro-max-skill",
+  "source_repo": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git",
+  "source_ref": "4255c218a6762c945a782701fd38dfb24fc10064",
+  "source_path": "ui-ux-pro-max",
+  "bundle_root": "",
   "install_mode": "flattened-copy",
   "update_group": "nextlevelbuilder/ui-ux-pro-max-skill",
-  "source_path": "ui-ux-pro-max",
-  "platform_policies": {}
+  "platform_policies": {
+    "claude_code": {
+      "publish": false,
+      "install": "plugin",
+      "plugin_name": "ui-ux-pro-max",
+      "install_hint": "/plugin install ui-ux-pro-max@ui-ux-pro-max-skill",
+      "plugin_marketplace": "ui-ux-pro-max-skill",
+      "plugin_marketplace_source": "nextlevelbuilder/ui-ux-pro-max-skill"
+    }
+  },
+  "installed_by": "install-skill",
+  "installed_at": "2026-03-30T07:33:37Z",
+  "updated_at": "2026-03-30T07:33:37Z"
 }

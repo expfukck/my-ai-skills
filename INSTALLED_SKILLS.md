@@ -3,7 +3,7 @@
 > 本文档由 `shared/scripts/update-skills-list.sh` 自动生成和维护
 > 文件名：`INSTALLED_SKILLS.md` - 避免与各 skill 目录中的 `SKILL.md` 混淆
 > 用途/触发关键词：优先由 AI 自动生成中文（可按需手动补充）
-> 最后更新：2026-03-28 19:42:31
+> 最后更新：2026-03-31 18:22:16
 
 ---
 
@@ -49,6 +49,22 @@
 
 ---
 
+### de-ai-zh-optimized
+**用途：** 重组优化版中文去AI技能，一次性输出终稿，支持文本与本地文件输入
+**触发关键词：** 去AI痕迹、论文去AI、技术文档去AI、AIGC改写、人性化改写、本地文件去AI
+
+**位置：** `/Users/zhangyufan/.agents/skills/de-ai-zh-optimized/`
+
+---
+
+### de-ai-zh-stable
+**用途：** 保守整合版中文去AI技能，一次性输出终稿，支持文本与本地文件输入
+**触发关键词：** 去AI痕迹、论文去AI、技术文档去AI、AIGC改写、人性化改写、本地文件去AI
+
+**位置：** `/Users/zhangyufan/.agents/skills/de-ai-zh-stable/`
+
+---
+
 ### doctor-skills
 **用途：** 诊断中央 skills 仓库状态，并在需要时执行轻量修复。
 **触发关键词：** doctor-skills、仓库诊断、verify.sh、skill-source.json、平台链接、轻量修复
@@ -81,6 +97,14 @@
 
 ---
 
+### tech-article-pipeline
+**用途：** 用于把技术实践、架构改造、工具评测等主题协作写成可发布的公众号草稿，并同步产出 X 线程版。
+**触发关键词：** 技术文章、公众号草稿、X 线程、文章起稿、技术复盘、架构写作、工具评测、协作写稿
+
+**位置：** `/Users/zhangyufan/.agents/skills/tech-article-pipeline/`
+
+---
+
 ### uninstall-skill
 **用途：** 删除中央仓库中的已安装 skill，并同步清理平台发布结果与已安装列表。
 **触发关键词：** uninstall-skill、卸载 skill、删除 skill、bundle 清理、平台清理、INSTALLED_SKILLS
@@ -106,6 +130,16 @@
 **来源：** vercel-labs/agent-browser
 
 **位置：** `/Users/zhangyufan/.agents/skills/agent-browser/`
+
+---
+
+### agent-reach
+**用途：** 用于 agent-reach：>
+**触发关键词：** agent-reach、搜推特、搜小红书、看视频、搜一下、上网搜、帮我查
+
+**来源：** （未记录）
+
+**位置：** `/Users/zhangyufan/.agents/skills/agent-reach/`
 
 ---
 
@@ -273,7 +307,7 @@
 **用途：** 用于设计与审查高质量 Web/移动端 UI/UX，并快速落地设计系统。
 **触发关键词：** UI设计、UX审查、设计系统、组件规范、可访问性、响应式布局、React、Next.js
 
-**来源：** nextlevelbuilder/ui-ux-pro-max-skill
+**来源：** https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git
 
 **位置：** `/Users/zhangyufan/.agents/skills/ui-ux-pro-max/`
 
@@ -349,20 +383,10 @@
 
 ---
 
-### 用于 相关工作流。
-**用途：** 生成 AI 新闻摘要并提供可部署的多源信息流仪表盘。
-**触发关键词：** clawfeed、新闻摘要、RSS、Twitter、digest、dashboard
-
-**来源：** https://github.com/kevinho/clawfeed.git
-
-**位置：** `/Users/zhangyufan/.agents/skills/clawfeed/`
-
----
-
 ## 📊 统计信息
 
-- **总计：** 37 个 skills
-- **自己创建：** 11 个
+- **总计：** 40 个 skills
+- **自己创建：** 14 个
 - **社区安装：** 26 个
 
 ---

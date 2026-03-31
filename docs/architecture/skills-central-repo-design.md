@@ -29,7 +29,7 @@
 
 - 历史 skill 的 `.skill-source.json` 覆盖仍不完整
 - `update-skill` 还未覆盖 bundle 增删等完整场景
-- 远程安全预审仍依赖 GitHub API/网络稳定性，需要继续观察长期稳定性
+- `install-skill` 的安全预审应以“临时本地副本扫描”为主，不再把 GitHub API 远程扫描作为主路径
 
 ### 目标状态
 

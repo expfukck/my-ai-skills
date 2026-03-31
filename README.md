@@ -222,7 +222,7 @@ SKILLS_DIR="$HOME/.agents/skills" bash "$HOME/.agents/skills/shared/scripts/veri
 
 ### install-skill
 用于封装 `npx skills add` 的安装/更新流程（支持全局/项目级），并在全局安装后自动尝试更新 `INSTALLED_SKILLS.md`。  
-安装和更新都会执行强制安全审计（远程预审 + 本地深扫）。
+安装和更新都会执行强制安全审计（临时仓库副本预审 + 本地深扫）。
 
 默认目标是中央仓库 `~/.agents/skills`。只有用户明确要求时，才应走项目级安装。
 

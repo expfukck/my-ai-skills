@@ -69,6 +69,8 @@
 32. 修正 [`update-skills-list.sh`](/Users/zhangyufan/.agents/skills/shared/scripts/update-skills-list.sh) 的启发式用途识别，使 `doctor-skills`、`uninstall-skill`、`update-skill`、`deep-research`、`tavily-search` 的文档描述更贴近真实职责。
 33. 清理 [`.skillsrc`](/Users/zhangyufan/.agents/skills/.skillsrc) 中已失效的第三方源码缓存目录配置，避免与新架构冲突。
 34. 使用 [`uninstall-skill`](/Users/zhangyufan/.agents/skills/uninstall-skill/SKILL.md) 删除 `tavily-search`，并同步清理所有平台链接与 `INSTALLED_SKILLS.md`，使仓库体检重新回到 `0 warning`。
+35. 重构 [`install-skill.sh`](/Users/zhangyufan/.agents/skills/install-skill/install-skill.sh)，将单 skill 与 bundle 的安装前安全检查统一为“临时仓库副本预审 + 最终目录本地深扫”，不再把 GitHub API 远程扫描作为主路径。
+36. 调整 [`doctor-skills.sh`](/Users/zhangyufan/.agents/skills/doctor-skills/doctor-skills.sh) 的历史兼容策略：对带独立 `.git` 的嵌入外部仓库不再强制要求 `.skill-source.json`，并将 `source=custom` 但缺少 `source_type` 的旧自定义 skill 视为兼容格式，避免无意义 warning。
 
 ### 已确认的设计决策
 
@@ -82,4 +84,4 @@
 ### 当前尚未完成
 
 1. `update-skill` 已支持 `--prune-missing`，但更新结果报告还可以继续增强。
-2. 远程安全预审已增加 URL 归一化与重试，但长期稳定性还需要继续观察。
+2. `update-skill` 的结果展示和失败原因仍可继续增强，尤其是对安全扫描和安装器输出的收敛。

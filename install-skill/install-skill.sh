@@ -26,7 +26,7 @@ usage() {
     echo "  --no-rollback-on-fail   关闭自动回滚"
     echo ""
     echo "说明:"
-    echo "  安装和更新都会强制执行安全检查（远程预审 + 本地深扫）"
+    echo "  安装和更新都会强制执行安全检查（临时副本预审 + 本地深扫）"
     exit 1
 }
 
@@ -85,59 +85,18 @@ run_security_check() {
     local guard_script="$1"
     local mode="$2"
     local target="$3"
-    local normalized_target="$target"
     local report_file
     local rc
-    local attempt=1
-    local max_attempts=1
     report_file="$(mktemp)"
 
-    if [[ "$mode" == "github" ]]; then
-        normalized_target="$(trim_trailing_slash "$normalized_target")"
-        normalized_target="${normalized_target#https://github.com/}"
-        normalized_target="${normalized_target#http://github.com/}"
-        normalized_target="${normalized_target#git@github.com:}"
-        normalized_target="${normalized_target%.git}"
-    fi
-
     local cmd=(python3 "$guard_script" --json --min-severity high "$mode")
-    if [[ "$mode" == "github" ]]; then
-        cmd+=(--repo "$normalized_target")
-    else
-        cmd+=(--path "$normalized_target")
-    fi
+    cmd+=(--path "$target")
 
-    if [[ "$mode" == "github" ]]; then
-        max_attempts=2
-    fi
-
-    while true; do
-        : > "$report_file"
-        set +e
-        if [[ "$mode" == "github" ]] && [[ -n "${SECURITY_SCAN_GITHUB_TOKEN:-}" ]]; then
-            GITHUB_TOKEN="$SECURITY_SCAN_GITHUB_TOKEN" "${cmd[@]}" >"$report_file"
-            rc=$?
-        else
-            "${cmd[@]}" >"$report_file"
-            rc=$?
-        fi
-        set -e
-
-        if [[ "$rc" -eq 0 ]]; then
-            break
-        fi
-
-        if [[ "$mode" == "github" ]] \
-            && [[ "$attempt" -lt "$max_attempts" ]] \
-            && grep -Eiq 'Network error|timed out|Temporary failure|handshake operation timed out' "$report_file"; then
-            echo -e "${YELLOW}⚠️ GitHub 远程预审出现瞬时网络错误，正在重试... (${attempt}/${max_attempts})${NC}"
-            attempt=$((attempt + 1))
-            sleep 2
-            continue
-        fi
-
-        break
-    done
+    : > "$report_file"
+    set +e
+    "${cmd[@]}" >"$report_file"
+    rc=$?
+    set -e
 
     if [[ "$rc" -eq 0 ]]; then
         echo -e "${GREEN}✅ 安全检查通过 (${mode})${NC}"
@@ -153,22 +112,6 @@ run_security_check() {
         echo -e "${RED}❌ 安全检查执行失败 (${mode}), exit=${rc}${NC}"
     fi
     rm -f "$report_file"
-    return 1
-}
-
-resolve_github_token_for_scan() {
-    if [[ -n "${GITHUB_TOKEN:-}" ]]; then
-        echo "$GITHUB_TOKEN"
-        return 0
-    fi
-    if command -v gh >/dev/null 2>&1; then
-        local token
-        token="$(gh auth token 2>/dev/null || true)"
-        if [[ -n "$token" ]]; then
-            echo "$token"
-            return 0
-        fi
-    fi
     return 1
 }
 
@@ -513,25 +456,6 @@ ensure_claude_plugin_installed() {
     echo -e "${GREEN}✅ Claude Code 插件安装完成: ${plugin_ref}${NC}"
 }
 
-detect_remote_claude_plugin_policy() {
-    local repo="$1"
-    local package_name="$2"
-    local temp_dir=""
-    local repo_dir=""
-
-    temp_dir="$(mktemp -d)"
-    repo_dir="$temp_dir/repo"
-
-    if ! clone_bundle_repo "$repo" "$repo_dir"; then
-        rm -rf "$temp_dir"
-        printf 'true\x1fskill\x1f\x1f\x1f\x1f\x1f\n'
-        return 0
-    fi
-
-    detect_claude_plugin_policy "$repo_dir" "$package_name"
-    rm -rf "$temp_dir"
-}
-
 refresh_global_indexes() {
     local install_script=""
     local update_script=""
@@ -582,6 +506,38 @@ clone_bundle_repo() {
     git clone --depth 1 "$repo" "$target_dir" >/dev/null 2>&1
 }
 
+cleanup_repo_snapshot() {
+    local repo_dir="${1:-}"
+    if [[ -n "$repo_dir" && -d "$repo_dir" ]]; then
+        rm -rf "$(dirname "$repo_dir")"
+    fi
+}
+
+prepare_repo_snapshot() {
+    local repo="$1"
+    local temp_dir=""
+    local repo_dir=""
+
+    temp_dir="$(mktemp -d)"
+    repo_dir="$temp_dir/repo"
+
+    echo -e "${YELLOW}📥 正在拉取临时仓库副本...${NC}" >&2
+    if ! clone_bundle_repo "$repo" "$repo_dir"; then
+        cleanup_repo_snapshot "$repo_dir"
+        echo -e "${RED}❌ 临时克隆仓库失败: ${repo}${NC}" >&2
+        return 1
+    fi
+
+    echo -e "${YELLOW}🔒 执行临时副本安全预审...${NC}" >&2
+    if ! run_security_check "$SECURITY_GUARD_SCRIPT" local "$repo_dir" >&2; then
+        cleanup_repo_snapshot "$repo_dir"
+        echo -e "${RED}❌ 已阻断安装/更新，请先处理仓库风险: ${repo}${NC}" >&2
+        return 1
+    fi
+
+    printf '%s\n' "$repo_dir"
+}
+
 install_bundle_skills() {
     local repo="$1"
     local install_root="$2"
@@ -607,18 +563,14 @@ install_bundle_skills() {
     local skill_name=""
     local target_path=""
 
-    temp_dir="$(mktemp -d)"
-    repo_dir="$temp_dir/repo"
-
-    if ! clone_bundle_repo "$repo" "$repo_dir"; then
-        rm -rf "$temp_dir"
-        echo -e "${RED}❌ 临时克隆 bundle 仓库失败: ${repo}${NC}"
+    repo_dir="$(prepare_repo_snapshot "$repo")" || {
+        echo -e "${RED}❌ 无法准备 bundle 仓库副本: ${repo}${NC}"
         exit 1
-    fi
+    }
 
     bundle_root="$(detect_bundle_root "$repo_dir" "$bundle_root_arg" || true)"
     if [[ -z "$bundle_root" || ! -d "$repo_dir/$bundle_root" ]]; then
-        rm -rf "$temp_dir"
+        cleanup_repo_snapshot "$repo_dir"
         echo -e "${RED}❌ 无法识别 bundle 根目录，请使用 --bundle-root 显式指定${NC}"
         exit 1
     fi
@@ -648,7 +600,7 @@ install_bundle_skills() {
         cp -a "$skill_dir" "$target_path"
 
         if ! run_security_check "$SECURITY_GUARD_SCRIPT" local "$target_path"; then
-            rm -rf "$temp_dir"
+            cleanup_repo_snapshot "$repo_dir"
             echo -e "${RED}❌ bundle skill 本地安全深扫未通过: ${skill_name}${NC}"
             exit 1
         fi
@@ -669,7 +621,7 @@ install_bundle_skills() {
             "$claude_install_hint" \
             "$claude_plugin_marketplace" \
             "$claude_plugin_marketplace_source"; then
-            rm -rf "$temp_dir"
+            cleanup_repo_snapshot "$repo_dir"
             echo -e "${RED}❌ 写入 bundle 来源元数据失败: ${target_path}/.skill-source.json${NC}"
             exit 1
         fi
@@ -677,7 +629,7 @@ install_bundle_skills() {
         installed_count=$((installed_count + 1))
     done < <(find "$repo_dir/$bundle_root" -mindepth 1 -maxdepth 1 -type d | sort)
 
-    rm -rf "$temp_dir"
+    cleanup_repo_snapshot "$repo_dir"
 
     if [[ "$GLOBAL_INSTALL" == true ]]; then
         refresh_global_indexes
@@ -715,6 +667,9 @@ install_bundle_skills() {
 cleanup_rollback_backup() {
     if [[ -n "${ROLLBACK_BACKUP_DIR:-}" ]] && [[ -d "${ROLLBACK_BACKUP_DIR:-}" ]]; then
         rm -rf "$ROLLBACK_BACKUP_DIR"
+    fi
+    if [[ -n "${REPO_SNAPSHOT_DIR:-}" ]]; then
+        cleanup_repo_snapshot "$REPO_SNAPSHOT_DIR"
     fi
 }
 
@@ -758,6 +713,7 @@ GLOBAL_INSTALL=false
 ROLLBACK_ON_FAIL=true
 ROLLBACK_BACKUP_DIR=""
 ROLLBACK_BACKUP_PATH=""
+REPO_SNAPSHOT_DIR=""
 
 trap cleanup_rollback_backup EXIT
 
@@ -847,11 +803,6 @@ if [[ -z "$SECURITY_GUARD_SCRIPT" ]]; then
     exit 1
 fi
 
-SECURITY_SCAN_GITHUB_TOKEN="$(resolve_github_token_for_scan || true)"
-if [[ -z "$SECURITY_SCAN_GITHUB_TOKEN" ]]; then
-    echo -e "${YELLOW}⚠️ 未检测到 GitHub Token，远程预审可能受 API 速率限制${NC}"
-fi
-
 # 确定安装位置和类型
 if [[ "$GLOBAL_INSTALL" == true ]]; then
     INSTALL_LOCATION="~/.agents/skills"
@@ -887,12 +838,6 @@ else
 fi
 echo ""
 
-echo -e "${YELLOW}🔒 执行远程安全预审...${NC}"
-if ! run_security_check "$SECURITY_GUARD_SCRIPT" github "$REPO"; then
-    echo -e "${RED}❌ 已阻断${OPERATION}，请先处理远程仓库风险${NC}"
-    exit 1
-fi
-
 if [[ "$OPERATION" == "更新" ]] && [[ "$ROLLBACK_ON_FAIL" == true ]]; then
     ROLLBACK_BACKUP_DIR="$(mktemp -d)"
     ROLLBACK_BACKUP_PATH="$ROLLBACK_BACKUP_DIR/$SKILL_NAME"
@@ -906,9 +851,16 @@ if [[ "$BUNDLE_INSTALL" == true ]]; then
     install_bundle_skills "$REPO" "$INSTALL_ROOT" "$BUNDLE_ROOT" "$INSTALL_LOCATION" "$INSTALL_TYPE"
 fi
 
-# 使用 npx skills add（非交互式）
+REPO_SNAPSHOT_DIR="$(prepare_repo_snapshot "$REPO")" || exit 1
+SOURCE_REF="$(git -C "$REPO_SNAPSHOT_DIR" rev-parse HEAD 2>/dev/null || true)"
+PACKAGE_NAME="$(derive_package_name "$REPO")"
+UPDATE_GROUP="$(derive_update_group "$REPO")"
+CLAUDE_POLICY_ROW="$(detect_claude_plugin_policy "$REPO_SNAPSHOT_DIR" "$PACKAGE_NAME")"
+IFS=$'\x1f' read -r CLAUDE_PUBLISH CLAUDE_INSTALL CLAUDE_PLUGIN_NAME CLAUDE_INSTALL_HINT CLAUDE_PLUGIN_MARKETPLACE CLAUDE_PLUGIN_MARKETPLACE_SOURCE <<< "$CLAUDE_POLICY_ROW"
+
+# 使用 npx skills add（从临时本地副本安装）
 echo -e "${YELLOW}⏳ 正在${OPERATION}...${NC}"
-install_cmd=(npx skills add "$REPO" --skill "$SKILL_NAME" -y)
+install_cmd=(npx skills add "$REPO_SNAPSHOT_DIR" --skill "$SKILL_NAME" -y)
 if [[ "$GLOBAL_INSTALL" == true ]]; then
     install_cmd+=(-g)
 fi
@@ -946,11 +898,7 @@ fi
 
 echo ""
 echo -e "${YELLOW}📝 记录安装来源元数据...${NC}"
-PACKAGE_NAME="$(derive_package_name "$REPO")"
-UPDATE_GROUP="$(derive_update_group "$REPO")"
-CLAUDE_POLICY_ROW="$(detect_remote_claude_plugin_policy "$REPO" "$PACKAGE_NAME")"
-IFS=$'\x1f' read -r CLAUDE_PUBLISH CLAUDE_INSTALL CLAUDE_PLUGIN_NAME CLAUDE_INSTALL_HINT CLAUDE_PLUGIN_MARKETPLACE CLAUDE_PLUGIN_MARKETPLACE_SOURCE <<< "$CLAUDE_POLICY_ROW"
-if write_source_metadata "$TARGET_SKILL_PATH" "$REPO" "$SKILL_NAME" "single" "" "$SKILL_NAME" "" "$UPDATE_GROUP" "$PACKAGE_NAME" "$CLAUDE_PUBLISH" "$CLAUDE_INSTALL" "$CLAUDE_PLUGIN_NAME" "$CLAUDE_INSTALL_HINT" "$CLAUDE_PLUGIN_MARKETPLACE" "$CLAUDE_PLUGIN_MARKETPLACE_SOURCE"; then
+if write_source_metadata "$TARGET_SKILL_PATH" "$REPO" "$SKILL_NAME" "single" "$SOURCE_REF" "$SKILL_NAME" "" "$UPDATE_GROUP" "$PACKAGE_NAME" "$CLAUDE_PUBLISH" "$CLAUDE_INSTALL" "$CLAUDE_PLUGIN_NAME" "$CLAUDE_INSTALL_HINT" "$CLAUDE_PLUGIN_MARKETPLACE" "$CLAUDE_PLUGIN_MARKETPLACE_SOURCE"; then
     echo -e "${GREEN}✅ 来源元数据已更新: ${REPO}${NC}"
 else
     echo -e "${RED}❌ 写入来源元数据失败: ${TARGET_SKILL_PATH}/.skill-source.json${NC}"

@@ -3,7 +3,7 @@
 > 本文档由 `shared/scripts/update-skills-list.sh` 自动生成和维护
 > 文件名：`INSTALLED_SKILLS.md` - 避免与各 skill 目录中的 `SKILL.md` 混淆
 > 用途/触发关键词：优先由 AI 自动生成中文（可按需手动补充）
-> 最后更新：2026-04-01 17:50:54
+> 最后更新：2026-04-01 21:41:53
 
 ---
 
@@ -130,16 +130,6 @@
 **来源：** vercel-labs/agent-browser
 
 **位置：** `/Users/zhangyufan/.agents/skills/agent-browser/`
-
----
-
-### agent-reach
-**用途：** 用于 agent-reach：>
-**触发关键词：** agent-reach、搜推特、搜小红书、看视频、搜一下、上网搜、帮我查
-
-**来源：** （未记录）
-
-**位置：** `/Users/zhangyufan/.agents/skills/agent-reach/`
 
 ---
 
@@ -795,9 +785,9 @@
 
 ## 📊 统计信息
 
-- **总计：** 81 个 skills
+- **总计：** 80 个 skills
 - **自己创建：** 14 个
-- **社区安装：** 67 个
+- **社区安装：** 66 个
 
 ---
 

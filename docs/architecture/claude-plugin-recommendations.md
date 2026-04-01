@@ -1,7 +1,7 @@
 # Claude Code 插件安装说明
 
 > 本文档由 `shared/scripts/generate-claude-plugin-recommendations.sh` 自动生成。
-> 最后更新：2026-04-01 17:47:45
+> 最后更新：2026-04-01 21:41:32
 
 以下 skill 包不会发布到 `~/.claude/skills`，以避免与 Claude Code 官方插件能力重复暴露。
 当本机存在可用的 Claude CLI 和 `~/.claude` 环境时，中央仓库全局安装流程会自动尝试完成插件安装 / 启用。

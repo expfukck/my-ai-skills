@@ -1,0 +1,53 @@
+{
+  "source": "community",
+  "source_type": "bundle",
+  "package_name": "CTF-Sandbox-Orchestrator",
+  "source_repo": "https://github.com/GALIAIS/CTF-Sandbox-Orchestrator",
+  "source_ref": "bf07172369015201c48a449596a9d7e725a3057f",
+  "source_path": "./competition-pcap-protocol",
+  "bundle_root": ".",
+  "install_mode": "flattened-copy",
+  "update_group": "GALIAIS/CTF-Sandbox-Orchestrator",
+  "platform_policies": {
+    "claude_code": {
+      "publish": false,
+      "install": "disabled"
+    },
+    "codex": {
+      "publish": true
+    },
+    "cursor": {
+      "publish": false
+    },
+    "gemini": {
+      "publish": false
+    },
+    "antigravity": {
+      "publish": false
+    },
+    "windsurf": {
+      "publish": false
+    },
+    "cline": {
+      "publish": false
+    },
+    "goose": {
+      "publish": false
+    }
+  },
+  "installed_by": "install-skill",
+  "installed_at": "2026-04-01T09:42:11Z",
+  "updated_at": "2026-04-01T09:49:23Z",
+  "usage_zh": "用于分析 PCAP、私有协议和报文交互，恢复关键消息序列。",
+  "trigger_keywords": [
+    "PCAP 分析",
+    "协议逆向",
+    "抓包",
+    "流量还原",
+    "报文解析"
+  ],
+  "meta_generated_by": "codex",
+  "meta_generation": "current_ai",
+  "meta_language": "zh-CN",
+  "meta_updated_at": "2026-04-01T09:49:23Z"
+}

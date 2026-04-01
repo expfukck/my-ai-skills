@@ -474,6 +474,25 @@ def is_benign_pkg_install_line(file_path: str, line: str) -> bool:
     return bool(BENIGN_PKG_INSTALL_RE.match(line.strip()))
 
 
+INLINE_SUDO_COMMAND_RE = re.compile(r"`[^`\n]*\bsudo\s+[A-Za-z0-9_./~-]+[^`\n]*`", re.IGNORECASE)
+LEADING_SUDO_COMMAND_RE = re.compile(
+    r"^\s*(?:[-*]\s*)?(?:[`$>#]\s*)?sudo\s+[A-Za-z0-9_./~-]+",
+    re.IGNORECASE,
+)
+
+
+def is_real_sudo_command_context(file_path: str, line: str) -> bool:
+    if os.path.basename(file_path) != "SKILL.md":
+        return True
+
+    stripped = line.strip()
+    if INLINE_SUDO_COMMAND_RE.search(line):
+        return True
+    if LEADING_SUDO_COMMAND_RE.search(stripped):
+        return True
+    return False
+
+
 def add_line_pattern_findings(
     findings: list[Finding],
     sf: ScannableFile,
@@ -494,6 +513,8 @@ def add_line_pattern_findings(
                 adjusted_severity = Severity.MEDIUM
                 adjusted_title = "Package manager install command in documentation"
                 adjusted_recommendation = "确认该命令仅用于环境准备说明，且不包含下载执行链路。"
+            elif rule_prefix == "PRIV_ESC" and title == "sudo usage detected" and not is_real_sudo_command_context(sf.path, line):
+                continue
 
             if is_doc_context(sf.path, line) and adjusted_severity >= Severity.HIGH:
                 continue

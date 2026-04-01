@@ -10,7 +10,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 usage() {
-    echo "用法: $0 <owner/repo> (--skill <skill-name> | --all-skills) [--bundle-root <dir>] [--global]"
+    echo "用法: $0 <owner/repo> (--skill <skill-name> | --all-skills) [--bundle-root <dir>] [--global] [--codex-only]"
     echo ""
     echo "示例:"
     echo "  $0 vercel-labs/agent-skills --skill frontend-design --global"
@@ -21,6 +21,7 @@ usage() {
     echo "  --global, -g    全局安装（到 ~/.agents/skills，跨项目共享）"
     echo "  --all-skills    安装 bundle 仓库中的全部 skills"
     echo "  --bundle-root   bundle 的 skill 根目录（默认自动识别，常见值为 skills）"
+    echo "  --codex-only    仅发布到 Codex，不同步到其他客户端"
     echo "  不带 -g         项目级安装（到 ./.agents/skills，仅当前项目）"
     echo "  --rollback-on-fail      本地深扫失败时自动回滚（默认开启）"
     echo "  --no-rollback-on-fail   关闭自动回滚"
@@ -195,11 +196,12 @@ write_source_metadata() {
     local claude_install_hint="${13:-}"
     local claude_plugin_marketplace="${14:-}"
     local claude_plugin_marketplace_source="${15:-}"
+    local platform_profile="${16:-all}"
     local meta_file="$target_path/.skill-source.json"
     local now_utc
     now_utc="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 
-    python3 - "$meta_file" "$source_repo" "$skill_name" "$source_type" "$source_ref" "$source_path" "$bundle_root" "$update_group" "$package_name" "$claude_publish" "$claude_install" "$claude_plugin_name" "$claude_install_hint" "$claude_plugin_marketplace" "$claude_plugin_marketplace_source" "$now_utc" <<'PY'
+    python3 - "$meta_file" "$source_repo" "$skill_name" "$source_type" "$source_ref" "$source_path" "$bundle_root" "$update_group" "$package_name" "$claude_publish" "$claude_install" "$claude_plugin_name" "$claude_install_hint" "$claude_plugin_marketplace" "$claude_plugin_marketplace_source" "$now_utc" "$platform_profile" <<'PY'
 import json
 import os
 import sys
@@ -221,7 +223,8 @@ import sys
     claude_plugin_marketplace,
     claude_plugin_marketplace_source,
     now_utc,
-) = sys.argv[1:17]
+    platform_profile,
+) = sys.argv[1:18]
 data = {}
 
 if os.path.exists(meta_file):
@@ -260,6 +263,22 @@ if claude_plugin_marketplace:
 if claude_plugin_marketplace_source:
     claude_policy["plugin_marketplace_source"] = claude_plugin_marketplace_source
 platform_policies["claude_code"] = claude_policy
+if platform_profile == "codex-only":
+    for platform_key, publish in {
+        "codex": True,
+        "claude_code": False,
+        "cursor": False,
+        "gemini": False,
+        "antigravity": False,
+        "windsurf": False,
+        "cline": False,
+        "goose": False,
+    }.items():
+        policy = platform_policies.get(platform_key)
+        if not isinstance(policy, dict):
+            policy = {}
+        policy["publish"] = publish
+        platform_policies[platform_key] = policy
 data["platform_policies"] = platform_policies
 data["installed_by"] = "install-skill"
 data.setdefault("installed_at", now_utc)
@@ -580,6 +599,14 @@ install_bundle_skills() {
     update_group="$(derive_update_group "$repo")"
     claude_policy_row="$(detect_claude_plugin_policy "$repo_dir" "$package_name")"
     IFS=$'\x1f' read -r claude_publish claude_install claude_plugin_name claude_install_hint claude_plugin_marketplace claude_plugin_marketplace_source <<< "$claude_policy_row"
+    if [[ "$CODEX_ONLY" == true ]]; then
+        claude_publish="false"
+        claude_install="disabled"
+        claude_plugin_name=""
+        claude_install_hint=""
+        claude_plugin_marketplace=""
+        claude_plugin_marketplace_source=""
+    fi
 
     echo -e "${YELLOW}⏳ 正在${OPERATION} bundle skills...${NC}"
 
@@ -620,7 +647,8 @@ install_bundle_skills() {
             "$claude_plugin_name" \
             "$claude_install_hint" \
             "$claude_plugin_marketplace" \
-            "$claude_plugin_marketplace_source"; then
+            "$claude_plugin_marketplace_source" \
+            "$([[ "$CODEX_ONLY" == true ]] && printf 'codex-only' || printf 'all')"; then
             cleanup_repo_snapshot "$repo_dir"
             echo -e "${RED}❌ 写入 bundle 来源元数据失败: ${target_path}/.skill-source.json${NC}"
             exit 1
@@ -651,7 +679,9 @@ install_bundle_skills() {
     echo -e "${BLUE}📍 来源: ${repo}${NC}"
     echo -e "${BLUE}📂 位置: ${install_location}${NC}"
     echo -e "${BLUE}📦 安装技能数: ${installed_count}${NC}"
-    if [[ "$claude_publish" != "true" ]]; then
+    if [[ "$CODEX_ONLY" == true ]]; then
+        echo -e "${BLUE}🔗 已仅发布到 Codex${NC}"
+    elif [[ "$claude_publish" != "true" ]]; then
         echo -e "${YELLOW}⚠️ Claude Code 将改用插件安装，不通过 ~/.claude/skills 发布${NC}"
         if [[ -n "$claude_plugin_marketplace_source" ]]; then
             echo -e "${YELLOW}   插件市场: ${claude_plugin_marketplace_source}${NC}"
@@ -710,6 +740,7 @@ SKILL_NAME=""
 BUNDLE_INSTALL=false
 BUNDLE_ROOT=""
 GLOBAL_INSTALL=false
+CODEX_ONLY=false
 ROLLBACK_ON_FAIL=true
 ROLLBACK_BACKUP_DIR=""
 ROLLBACK_BACKUP_PATH=""
@@ -741,6 +772,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --global|-g)
             GLOBAL_INSTALL=true
+            shift
+            ;;
+        --codex-only)
+            CODEX_ONLY=true
             shift
             ;;
         --rollback-on-fail)
@@ -831,6 +866,11 @@ else
 fi
 echo -e "${BLUE}📍 来源: ${REPO}${NC}"
 echo -e "${BLUE}📂 位置: ${INSTALL_LOCATION}${NC}"
+if [[ "$CODEX_ONLY" == true ]]; then
+    echo -e "${BLUE}🧭 发布策略: 仅 Codex${NC}"
+else
+    echo -e "${BLUE}🧭 发布策略: 默认多平台${NC}"
+fi
 if [[ "$ROLLBACK_ON_FAIL" == true ]]; then
     echo -e "${BLUE}🧯 本地深扫失败自动回滚: 开启${NC}"
 else
@@ -857,6 +897,14 @@ PACKAGE_NAME="$(derive_package_name "$REPO")"
 UPDATE_GROUP="$(derive_update_group "$REPO")"
 CLAUDE_POLICY_ROW="$(detect_claude_plugin_policy "$REPO_SNAPSHOT_DIR" "$PACKAGE_NAME")"
 IFS=$'\x1f' read -r CLAUDE_PUBLISH CLAUDE_INSTALL CLAUDE_PLUGIN_NAME CLAUDE_INSTALL_HINT CLAUDE_PLUGIN_MARKETPLACE CLAUDE_PLUGIN_MARKETPLACE_SOURCE <<< "$CLAUDE_POLICY_ROW"
+if [[ "$CODEX_ONLY" == true ]]; then
+    CLAUDE_PUBLISH="false"
+    CLAUDE_INSTALL="disabled"
+    CLAUDE_PLUGIN_NAME=""
+    CLAUDE_INSTALL_HINT=""
+    CLAUDE_PLUGIN_MARKETPLACE=""
+    CLAUDE_PLUGIN_MARKETPLACE_SOURCE=""
+fi
 
 # 使用 npx skills add（从临时本地副本安装）
 echo -e "${YELLOW}⏳ 正在${OPERATION}...${NC}"
@@ -898,7 +946,7 @@ fi
 
 echo ""
 echo -e "${YELLOW}📝 记录安装来源元数据...${NC}"
-if write_source_metadata "$TARGET_SKILL_PATH" "$REPO" "$SKILL_NAME" "single" "$SOURCE_REF" "$SKILL_NAME" "" "$UPDATE_GROUP" "$PACKAGE_NAME" "$CLAUDE_PUBLISH" "$CLAUDE_INSTALL" "$CLAUDE_PLUGIN_NAME" "$CLAUDE_INSTALL_HINT" "$CLAUDE_PLUGIN_MARKETPLACE" "$CLAUDE_PLUGIN_MARKETPLACE_SOURCE"; then
+if write_source_metadata "$TARGET_SKILL_PATH" "$REPO" "$SKILL_NAME" "single" "$SOURCE_REF" "$SKILL_NAME" "" "$UPDATE_GROUP" "$PACKAGE_NAME" "$CLAUDE_PUBLISH" "$CLAUDE_INSTALL" "$CLAUDE_PLUGIN_NAME" "$CLAUDE_INSTALL_HINT" "$CLAUDE_PLUGIN_MARKETPLACE" "$CLAUDE_PLUGIN_MARKETPLACE_SOURCE" "$([[ "$CODEX_ONLY" == true ]] && printf 'codex-only' || printf 'all')"; then
     echo -e "${GREEN}✅ 来源元数据已更新: ${REPO}${NC}"
 else
     echo -e "${RED}❌ 写入来源元数据失败: ${TARGET_SKILL_PATH}/.skill-source.json${NC}"
@@ -927,7 +975,11 @@ echo ""
 
 if [[ "$GLOBAL_INSTALL" == true ]]; then
     echo -e "${BLUE}📍 位置: ~/.agents/skills/${SKILL_NAME}${NC}"
-    echo -e "${BLUE}🔗 已自动链接到所有 AI 编码工具${NC}"
+    if [[ "$CODEX_ONLY" == true ]]; then
+        echo -e "${BLUE}🔗 已仅发布到 Codex${NC}"
+    else
+        echo -e "${BLUE}🔗 已自动链接到所有 AI 编码工具${NC}"
+    fi
     if [[ "$CLAUDE_INSTALL" == "plugin" ]]; then
         echo -e "${BLUE}🔌 Claude Code 插件已按平台策略自动处理${NC}"
     fi

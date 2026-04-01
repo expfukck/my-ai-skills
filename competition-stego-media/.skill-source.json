@@ -1,0 +1,53 @@
+{
+  "source": "community",
+  "source_type": "bundle",
+  "package_name": "CTF-Sandbox-Orchestrator",
+  "source_repo": "https://github.com/GALIAIS/CTF-Sandbox-Orchestrator",
+  "source_ref": "bf07172369015201c48a449596a9d7e725a3057f",
+  "source_path": "./competition-stego-media",
+  "bundle_root": ".",
+  "install_mode": "flattened-copy",
+  "update_group": "GALIAIS/CTF-Sandbox-Orchestrator",
+  "platform_policies": {
+    "claude_code": {
+      "publish": false,
+      "install": "disabled"
+    },
+    "codex": {
+      "publish": true
+    },
+    "cursor": {
+      "publish": false
+    },
+    "gemini": {
+      "publish": false
+    },
+    "antigravity": {
+      "publish": false
+    },
+    "windsurf": {
+      "publish": false
+    },
+    "cline": {
+      "publish": false
+    },
+    "goose": {
+      "publish": false
+    }
+  },
+  "installed_by": "install-skill",
+  "installed_at": "2026-04-01T09:42:18Z",
+  "updated_at": "2026-04-01T09:49:22Z",
+  "usage_zh": "用于分析图片、音视频、文档等载体中的隐写和附加隐藏数据。",
+  "trigger_keywords": [
+    "隐写术",
+    "图片分析",
+    "音视频取证",
+    "隐藏载荷",
+    "媒体取证"
+  ],
+  "meta_generated_by": "codex",
+  "meta_generation": "current_ai",
+  "meta_language": "zh-CN",
+  "meta_updated_at": "2026-04-01T09:49:22Z"
+}

@@ -220,6 +220,51 @@ print(f"{str(bool(publish)).lower()}\x1f{install_mode}\x1f{plugin_name}\x1f{inst
 PY
 }
 
+read_platform_publish_flag() {
+    local skill_dir="$1"
+    local platform_key="$2"
+    local meta_file="$skill_dir/.skill-source.json"
+
+    if [[ ! -f "$meta_file" ]]; then
+        printf 'true\n'
+        return 0
+    fi
+
+    python3 - "$meta_file" "$platform_key" <<'PY'
+import json
+import sys
+
+path, platform_key = sys.argv[1:3]
+try:
+    data = json.load(open(path, "r", encoding="utf-8"))
+except Exception:
+    print("true")
+    raise SystemExit(0)
+
+policies = data.get("platform_policies") or {}
+if not isinstance(policies, dict):
+    policies = {}
+platform = policies.get(platform_key) or {}
+if not isinstance(platform, dict):
+    platform = {}
+
+publish = platform.get("publish")
+if publish is None:
+    publish = True
+
+print(str(bool(publish)).lower())
+PY
+}
+
+tool_dir_platform_key() {
+    local tool_dir="$1"
+    local tool_name=""
+
+    tool_name="$(basename "$(dirname "$tool_dir")")"
+    tool_name="${tool_name#.}"
+    printf '%s\n' "$tool_name"
+}
+
 echo "🚀 开始配置 AI Skills..."
 echo "Skills 目录: $SKILLS_DIR"
 echo ""
@@ -306,6 +351,13 @@ for tool_dir in "${skill_links[@]}"; do
                 if [[ -n "$claude_install_hint" ]]; then
                     echo "   建议命令: $claude_install_hint"
                 fi
+                continue
+            fi
+        else
+            platform_key="$(tool_dir_platform_key "$tool_dir")"
+            publish_flag="$(read_platform_publish_flag "$skill_dir" "$platform_key")"
+            if [[ "$publish_flag" != "true" ]]; then
+                echo "⏭️  跳过发布到 ${tool_name}: $skill_name"
                 continue
             fi
         fi

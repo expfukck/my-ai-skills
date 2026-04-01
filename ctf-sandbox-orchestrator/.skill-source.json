@@ -1,0 +1,53 @@
+{
+  "source": "community",
+  "source_type": "bundle",
+  "package_name": "CTF-Sandbox-Orchestrator",
+  "source_repo": "https://github.com/GALIAIS/CTF-Sandbox-Orchestrator",
+  "source_ref": "bf07172369015201c48a449596a9d7e725a3057f",
+  "source_path": "./ctf-sandbox-orchestrator",
+  "bundle_root": ".",
+  "install_mode": "flattened-copy",
+  "update_group": "GALIAIS/CTF-Sandbox-Orchestrator",
+  "platform_policies": {
+    "claude_code": {
+      "publish": false,
+      "install": "disabled"
+    },
+    "codex": {
+      "publish": true
+    },
+    "cursor": {
+      "publish": false
+    },
+    "gemini": {
+      "publish": false
+    },
+    "antigravity": {
+      "publish": false
+    },
+    "windsurf": {
+      "publish": false
+    },
+    "cline": {
+      "publish": false
+    },
+    "goose": {
+      "publish": false
+    }
+  },
+  "installed_by": "install-skill",
+  "installed_at": "2026-04-01T09:42:23Z",
+  "updated_at": "2026-04-01T09:49:21Z",
+  "usage_zh": "CTF 沙箱总入口技能，用于先建立统一分析模型，再把任务路由到更窄的专项攻防 skill。",
+  "trigger_keywords": [
+    "CTF 总控",
+    "沙箱编排",
+    "挑战路由",
+    "攻防分析",
+    "总入口"
+  ],
+  "meta_generated_by": "codex",
+  "meta_generation": "current_ai",
+  "meta_language": "zh-CN",
+  "meta_updated_at": "2026-04-01T09:49:21Z"
+}

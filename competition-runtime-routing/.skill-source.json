@@ -1,0 +1,53 @@
+{
+  "source": "community",
+  "source_type": "bundle",
+  "package_name": "CTF-Sandbox-Orchestrator",
+  "source_repo": "https://github.com/GALIAIS/CTF-Sandbox-Orchestrator",
+  "source_ref": "bf07172369015201c48a449596a9d7e725a3057f",
+  "source_path": "./competition-runtime-routing",
+  "bundle_root": ".",
+  "install_mode": "flattened-copy",
+  "update_group": "GALIAIS/CTF-Sandbox-Orchestrator",
+  "platform_policies": {
+    "claude_code": {
+      "publish": false,
+      "install": "disabled"
+    },
+    "codex": {
+      "publish": true
+    },
+    "cursor": {
+      "publish": false
+    },
+    "gemini": {
+      "publish": false
+    },
+    "antigravity": {
+      "publish": false
+    },
+    "windsurf": {
+      "publish": false
+    },
+    "cline": {
+      "publish": false
+    },
+    "goose": {
+      "publish": false
+    }
+  },
+  "installed_by": "install-skill",
+  "installed_at": "2026-04-01T09:42:17Z",
+  "updated_at": "2026-04-01T09:49:22Z",
+  "usage_zh": "用于分析请求在代理、服务和运行时组件之间的真实路由路径。",
+  "trigger_keywords": [
+    "运行时路由",
+    "代理链路",
+    "请求流向",
+    "服务解析",
+    "网关调试"
+  ],
+  "meta_generated_by": "codex",
+  "meta_generation": "current_ai",
+  "meta_language": "zh-CN",
+  "meta_updated_at": "2026-04-01T09:49:22Z"
+}

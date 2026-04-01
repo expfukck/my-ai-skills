@@ -1,0 +1,53 @@
+{
+  "source": "community",
+  "source_type": "bundle",
+  "package_name": "CTF-Sandbox-Orchestrator",
+  "source_repo": "https://github.com/GALIAIS/CTF-Sandbox-Orchestrator",
+  "source_ref": "bf07172369015201c48a449596a9d7e725a3057f",
+  "source_path": "./competition-firmware-layout",
+  "bundle_root": ".",
+  "install_mode": "flattened-copy",
+  "update_group": "GALIAIS/CTF-Sandbox-Orchestrator",
+  "platform_policies": {
+    "claude_code": {
+      "publish": false,
+      "install": "disabled"
+    },
+    "codex": {
+      "publish": true
+    },
+    "cursor": {
+      "publish": false
+    },
+    "gemini": {
+      "publish": false
+    },
+    "antigravity": {
+      "publish": false
+    },
+    "windsurf": {
+      "publish": false
+    },
+    "cline": {
+      "publish": false
+    },
+    "goose": {
+      "publish": false
+    }
+  },
+  "installed_by": "install-skill",
+  "installed_at": "2026-04-01T09:41:59Z",
+  "updated_at": "2026-04-01T09:49:23Z",
+  "usage_zh": "用于拆解固件镜像、分区布局、启动链和更新包结构。",
+  "trigger_keywords": [
+    "固件分析",
+    "分区布局",
+    "启动链",
+    "更新包",
+    "嵌入式安全"
+  ],
+  "meta_generated_by": "codex",
+  "meta_generation": "current_ai",
+  "meta_language": "zh-CN",
+  "meta_updated_at": "2026-04-01T09:49:23Z"
+}

@@ -3,7 +3,7 @@
 > 本文档由 `shared/scripts/update-skills-list.sh` 自动生成和维护
 > 文件名：`INSTALLED_SKILLS.md` - 避免与各 skill 目录中的 `SKILL.md` 混淆
 > 用途/触发关键词：优先由 AI 自动生成中文（可按需手动补充）
-> 最后更新：2026-03-31 18:22:16
+> 最后更新：2026-04-01 17:50:54
 
 ---
 
@@ -160,6 +160,416 @@
 **来源：** pasky/chrome-cdp-skill
 
 **位置：** `/Users/zhangyufan/.agents/skills/chrome-cdp/`
+
+---
+
+### competition-ad-certificate-abuse
+**用途：** 用于分析 AD CS、证书模板、PKINIT 和证书映射带来的提权路径。
+**触发关键词：** AD CS、证书滥用、PKINIT、模板权限、证书提权
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-ad-certificate-abuse/`
+
+---
+
+### competition-agent-cloud
+**用途：** 用于分析 AI agent、云、容器和 CI/CD 相关挑战，追踪从输入到云侧影响的链路。
+**触发关键词：** Agent 安全、云安全、容器安全、CI、CD、提示注入
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-agent-cloud/`
+
+---
+
+### competition-android-hooking
+**用途：** 用于分析 Android 运行时、Frida Hook、签名逻辑和本地存储。
+**触发关键词：** Android 安全、Frida、Hook、APK 分析、移动逆向
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-android-hooking/`
+
+---
+
+### competition-browser-persistence
+**用途：** 用于分析浏览器中的 Cookie、本地存储、Cache 和持久化状态。
+**触发关键词：** 浏览器取证、Cookie、localStorage、缓存、前端状态
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-browser-persistence/`
+
+---
+
+### competition-bundle-sourcemap-recovery
+**用途：** 用于从前端 bundle、source map 和构建产物中恢复隐藏结构。
+**触发关键词：** Source Map、Bundle 分析、前端构建、源码恢复、Chunk
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-bundle-sourcemap-recovery/`
+
+---
+
+### competition-cloud-metadata-path
+**用途：** 用于分析云元数据服务、实例身份和元数据到权限的信任边界。
+**触发关键词：** 云元数据、实例身份、工作负载身份、凭证路径、云权限
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-cloud-metadata-path/`
+
+---
+
+### competition-container-runtime
+**用途：** 用于分析容器、Pod、Sidecar 与挂载密钥在运行时的真实行为。
+**触发关键词：** 容器运行时、Kubernetes、挂载密钥、Sidecar、Pod 调试
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-container-runtime/`
+
+---
+
+### competition-crypto-mobile
+**用途：** 用于处理密码学、编码、隐写以及移动端信任边界相关题目。
+**触发关键词：** 密码学、编码解密、隐写分析、移动安全、APK IPA
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-crypto-mobile/`
+
+---
+
+### competition-custom-protocol-replay
+**用途：** 用于分析自定义协议的认证、重放窗口和状态机差异。
+**触发关键词：** 自定义协议、协议重放、状态机、认证链路、报文回放
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-custom-protocol-replay/`
+
+---
+
+### competition-dpapi-credential-chain
+**用途：** 用于分析 DPAPI、Vault、浏览器密钥库和凭据解包链路。
+**触发关键词：** DPAPI、Vault、浏览器凭据、密钥解包、Windows 凭据
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-dpapi-credential-chain/`
+
+---
+
+### competition-file-parser-chain
+**用途：** 用于分析文件上传、预览、解压和反序列化等解析链路。
+**触发关键词：** 文件上传、解析链、反序列化、解压流程、文件处理
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-file-parser-chain/`
+
+---
+
+### competition-firmware-layout
+**用途：** 用于拆解固件镜像、分区布局、启动链和更新包结构。
+**触发关键词：** 固件分析、分区布局、启动链、更新包、嵌入式安全
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-firmware-layout/`
+
+---
+
+### competition-forensic-timeline
+**用途：** 用于把多种取证证据串成一条可复盘的时间线，定位关键节点。
+**触发关键词：** 取证时间线、DFIR、日志关联、事件还原、多证据分析
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-forensic-timeline/`
+
+---
+
+### competition-graphql-rpc-drift
+**用途：** 用于分析 GraphQL/RPC 接口在模式、鉴权和运行时行为上的偏差。
+**触发关键词：** GraphQL、RPC、Schema Drift、鉴权差异、接口调试
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-graphql-rpc-drift/`
+
+---
+
+### competition-identity-windows
+**用途：** 用于分析身份系统、AD、Windows 主机和企业消息系统中的认证与权限链路。
+**触发关键词：** 身份安全、Active Directory、Windows 安全、认证链路、权限提升
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-identity-windows/`
+
+---
+
+### competition-ios-runtime
+**用途：** 用于分析 iOS 运行时、Frida Hook、Keychain、Pinning 与请求签名逻辑。
+**触发关键词：** iOS 安全、Frida、Keychain、SSL Pinning、IPA 分析
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-ios-runtime/`
+
+---
+
+### competition-jwt-claim-confusion
+**用途：** 用于分析 JWT/JWS/JWE 的头部、声明和密钥选择混淆问题。
+**触发关键词：** JWT、Claim 混淆、JWS、JWE、Token 验证
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-jwt-claim-confusion/`
+
+---
+
+### competition-k8s-control-plane
+**用途：** 用于分析 Kubernetes 控制面、RBAC、工作负载身份和集群变更。
+**触发关键词：** Kubernetes、控制面、RBAC、ServiceAccount、集群安全
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-k8s-control-plane/`
+
+---
+
+### competition-kerberos-delegation
+**用途：** 用于分析 Kerberos 委派、S4U、RBCD 和票据转换路径。
+**触发关键词：** Kerberos、委派滥用、RBCD、S4U、票据
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-kerberos-delegation/`
+
+---
+
+### competition-kernel-container-escape
+**用途：** 用于分析内核攻击面、Namespace 边界和容器逃逸路径。
+**触发关键词：** 容器逃逸、内核漏洞、Namespace、cgroup、宿主机边界
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-kernel-container-escape/`
+
+---
+
+### competition-linux-credential-pivot
+**用途：** 用于分析 Linux 中的 SSH、Token、Socket 与 sudo/capability 信任边界。
+**触发关键词：** Linux 凭据、SSH Key、sudo、Capability、横向移动
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-linux-credential-pivot/`
+
+---
+
+### competition-lsass-ticket-material
+**用途：** 用于分析 LSASS、票据缓存和可重放的会话凭据材料。
+**触发关键词：** LSASS、票据缓存、凭据转储、会话重放、Windows 凭据
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-lsass-ticket-material/`
+
+---
+
+### competition-mailbox-abuse
+**用途：** 用于分析邮箱规则、邮件流和企业消息系统中的滥用路径。
+**触发关键词：** 邮箱滥用、邮件规则、Exchange、企业邮件、消息安全
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-mailbox-abuse/`
+
+---
+
+### competition-malware-config
+**用途：** 用于提取和验证恶意样本配置、C2 信息与关键运行参数。
+**触发关键词：** 恶意软件、配置提取、C2 分析、样本解析、木马配置
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-malware-config/`
+
+---
+
+### competition-oauth-oidc-chain
+**用途：** 用于分析 OAuth、OIDC、重定向链和令牌到身份的转化过程。
+**触发关键词：** OAuth、OIDC、重定向链、令牌验证、身份联邦
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-oauth-oidc-chain/`
+
+---
+
+### competition-pcap-protocol
+**用途：** 用于分析 PCAP、私有协议和报文交互，恢复关键消息序列。
+**触发关键词：** PCAP 分析、协议逆向、抓包、流量还原、报文解析
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-pcap-protocol/`
+
+---
+
+### competition-prompt-injection
+**用途：** 用于分析提示词注入、工具调用污染和模型可见指令链路。
+**触发关键词：** 提示注入、Prompt Injection、工具调用、模型安全、Agent
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-prompt-injection/`
+
+---
+
+### competition-queue-worker-drift
+**用途：** 用于分析消息队列、Worker 状态漂移和异步执行结果不一致问题。
+**触发关键词：** 消息队列、Worker、异步任务、状态漂移、消费链路
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-queue-worker-drift/`
+
+---
+
+### competition-race-condition-state-drift
+**用途：** 用于分析竞态条件、锁缺失和时序导致的状态不一致。
+**触发关键词：** 竞态条件、Race Condition、时序漏洞、状态漂移、并发问题
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-race-condition-state-drift/`
+
+---
+
+### competition-relay-coercion-chain
+**用途：** 用于分析中继、强制认证和协议协商中的链式利用路径。
+**触发关键词：** Relay、强制认证、NTLM Relay、协议协商、链式利用
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-relay-coercion-chain/`
+
+---
+
+### competition-request-normalization-smuggling
+**用途：** 用于分析请求规范化差异、代理解析偏差和走私链路。
+**触发关键词：** 请求走私、规范化差异、代理解析、CL TE、路径编码
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-request-normalization-smuggling/`
+
+---
+
+### competition-reverse-pwn
+**用途：** 用于处理逆向、二进制、内存、恶意样本和 pwn 题，聚焦可复现的利用路径。
+**触发关键词：** 逆向分析、二进制漏洞、Pwn、崩溃调试、恶意样本
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-reverse-pwn/`
+
+---
+
+### competition-runtime-routing
+**用途：** 用于分析请求在代理、服务和运行时组件之间的真实路由路径。
+**触发关键词：** 运行时路由、代理链路、请求流向、服务解析、网关调试
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-runtime-routing/`
+
+---
+
+### competition-ssrf-metadata-pivot
+**用途：** 用于分析 SSRF 到元数据服务再到权限获取的完整链路。
+**触发关键词：** SSRF、元数据服务、凭证获取、云提权、内部访问
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-ssrf-metadata-pivot/`
+
+---
+
+### competition-stego-media
+**用途：** 用于分析图片、音视频、文档等载体中的隐写和附加隐藏数据。
+**触发关键词：** 隐写术、图片分析、音视频取证、隐藏载荷、媒体取证
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-stego-media/`
+
+---
+
+### competition-supply-chain
+**用途：** 用于分析依赖、镜像、制品、构建与发布流程中的供应链风险。
+**触发关键词：** 供应链安全、依赖投毒、镜像构建、发布流程、CI 风险
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-supply-chain/`
+
+---
+
+### competition-template-render-path
+**用途：** 用于分析 SSR、模板渲染、Hydration 和渲染上下文差异。
+**触发关键词：** SSR、模板渲染、Hydration、服务端渲染、前后端边界
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-template-render-path/`
+
+---
+
+### competition-web-runtime
+**用途：** 用于分析 CTF 中的 Web、API、前端与队列驱动应用链路，定位路由、会话和运行时差异。
+**触发关键词：** Web 安全、API 调试、前端运行时、会话链路、CTF Web
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-web-runtime/`
+
+---
+
+### competition-websocket-runtime
+**用途：** 用于分析 WebSocket、SSE、订阅流和帧驱动的实时状态变化。
+**触发关键词：** WebSocket、SSE、实时通信、订阅流、帧分析
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-websocket-runtime/`
+
+---
+
+### competition-windows-pivot
+**用途：** 用于分析 Windows 环境中的横向移动、远程执行和主机间权限转移。
+**触发关键词：** Windows 横向移动、SMB、WinRM、RDP、主机渗透
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/competition-windows-pivot/`
+
+---
+
+### ctf-sandbox-orchestrator
+**用途：** CTF 沙箱总入口技能，用于先建立统一分析模型，再把任务路由到更窄的专项攻防 skill。
+**触发关键词：** CTF 总控、沙箱编排、挑战路由、攻防分析、总入口
+
+**来源：** https://github.com/GALIAIS/CTF-Sandbox-Orchestrator (bundle: CTF-Sandbox-Orchestrator)
+
+**位置：** `/Users/zhangyufan/.agents/skills/ctf-sandbox-orchestrator/`
 
 ---
 
@@ -385,9 +795,9 @@
 
 ## 📊 统计信息
 
-- **总计：** 40 个 skills
+- **总计：** 81 个 skills
 - **自己创建：** 14 个
-- **社区安装：** 26 个
+- **社区安装：** 67 个
 
 ---
 
